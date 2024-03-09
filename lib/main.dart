@@ -1,6 +1,12 @@
+import 'package:ai_remover_background/adjustinghue_screen.dart';
+import 'package:ai_remover_background/brightness_screen.dart';
+import 'package:ai_remover_background/crop_image.dart';
 import 'package:ai_remover_background/home_screen.dart';
+import 'package:ai_remover_background/photofilter_screen.dart';
+import 'package:ai_remover_background/pickimage_cropper.dart';
 import 'package:ai_remover_background/second_home.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 void main() {
   runApp(const MyApp());
@@ -33,7 +39,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: SecondHome(),
+      home: PhotoFilter()
     );
   }
 }

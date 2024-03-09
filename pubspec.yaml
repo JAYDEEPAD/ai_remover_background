@@ -42,6 +42,10 @@ dependencies:
   permission_handler: ^11.3.0
   path_provider: ^2.1.2
   before_after_image_slider_nullsafty: ^1.0.1
+  image_cropper:
+  image: ^3.0.1
+  photofilters:
+  image_gallery_saver: ^2.0.3
 
 dev_dependencies:
   flutter_test:

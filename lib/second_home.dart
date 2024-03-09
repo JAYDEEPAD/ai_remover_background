@@ -16,14 +16,11 @@ class SecondHome extends StatefulWidget {
 class _SecondHomeState extends State<SecondHome> {
   String? imageUrl;
   bool isProcessing = false;
+  String? errorMessage;
+  String? newimageUrl;
 
   // Method to call the API for removing background
   Future<void> removeBackground() async {
-    setState(() {
-      isProcessing = true;
-    });
-
-    // API endpoint
     final apiUrl = 'https://bgremove.dohost.in/remove-bg';
 
     try {
@@ -39,25 +36,23 @@ class _SecondHomeState extends State<SecondHome> {
       );
 
       print(response.body);
-      // Checking if the response status code is successful (200)
       if (response.statusCode == 200) {
-        // Parsing the response JSON
         final responseData = jsonDecode(response.body);
-        // Getting the image data from the response
-        final imageData = responseData['image_data'];
-        // Displaying the image using the image data (assuming it's base64 encoded)
-        // Here you can store the image data in a variable or use it directly
-        // For now, let's just print the length of the decoded image data
-        print(base64Decode(imageData).length);
+        final imageData = responseData['image_url'];
+        print(imageData);
+        setState(() {
+          newimageUrl = imageData;
+        });
       } else {
-        // Handling the case when the API call fails
-        print('Failed to remove background: ${response.statusCode}');
+        setState(() {
+          errorMessage = 'Failed to remove background: ${response.statusCode}';
+        });
       }
     } catch (e) {
-      // Handling any exceptions that occur during the API call
-      print('Failed to remove background: $e');
+      setState(() {
+        errorMessage = 'Failed to remove background: $e';
+      });
     } finally {
-      // Setting isProcessing to false after API call completion
       setState(() {
         isProcessing = false;
       });
@@ -67,38 +62,48 @@ class _SecondHomeState extends State<SecondHome> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title: const Text("AI Background Remover"),
-      ),
-      body: Center(
-        child: imageUrl != null
-            ? Image.network(imageUrl!)
-            : ElevatedButton(
-          onPressed: () {
-            setState(() {
-              imageUrl =
-              "https://4.img-dpreview.com/files/p/TS600x600~sample_galleries/3002635523/4971879462.jpg";
-            });
-          },
-          child: Text(
-            "Upload Image",
-            style: TextStyle(fontSize: 16),
+        appBar: AppBar(
+          centerTitle: true,
+          title: const Text("AI Background Remover"),
+        ),
+        body: Center(
+          child: Column(
+            children: [
+              if(newimageUrl!=null)
+                SizedBox(height: 200,width: 200,
+                  child: Image.network(
+                    '$newimageUrl',
+                    fit: BoxFit.cover,
+                    scale: 1,
+                  ),
+                ),
+              ElevatedButton(
+                onPressed: () {
+                  setState(() {
+                    imageUrl =
+                    "https://4.img-dpreview.com/files/p/TS600x600~sample_galleries/3002635523/4971879462.jpg";
+                  });
+                  print(imageUrl);
+                },
+                child: Text(
+                  "Upload Image",
+                  style: TextStyle(fontSize: 16),
+                ),
+              ),
+            ],
           ),
         ),
-      ),
-      bottomNavigationBar: SizedBox(
-        height: 56,
-        child: ElevatedButton(
-          onPressed: imageUrl != null && !isProcessing
-              ? removeBackground
-              : null,
-          // Button text changes based on processing state
-          child: isProcessing
-              ? CircularProgressIndicator()
-              : Text("Remove Background"),
-        ),
-      ),
-    );
-  }
+        bottomNavigationBar: SizedBox(
+            height: 56,
+            child: ElevatedButton(
+              onPressed: () {
+                removeBackground();
+              },
+              // Button text changes based on processing state
+              child: isProcessing
+                  ? CircularProgressIndicator()
+                  : Text("Remove Background"),
+            ),
+            ),
+        );}
 }

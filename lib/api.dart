@@ -23,7 +23,7 @@ class Api {
       if (response.statusCode == 200) {
         final Map<String, dynamic> responseData = json.decode(response.body);
         // Assuming the response contains the image data as a base64 string
-        String imageData = responseData['image_data'];
+        String imageData = responseData['image_url'];
         return base64.decode(imageData);
       } else {
         throw Exception('Failed to remove background: ${response.statusCode}');
