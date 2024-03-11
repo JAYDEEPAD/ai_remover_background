@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart';
 
 void main() {
   runApp(MaterialApp(
@@ -16,6 +17,7 @@ class PickCropImageScreen extends StatefulWidget {
   @override
   State<PickCropImageScreen> createState() => _PickCropImageScreenState();
 }
+
 
 class _PickCropImageScreenState extends State<PickCropImageScreen> {
   File? imageFile;
@@ -72,12 +74,40 @@ class _PickCropImageScreenState extends State<PickCropImageScreen> {
     });
   }
 
+  Future<void> _downloadImage() async {
+    if (imageFile != null) {
+      try {
+        final appDir = await getExternalStorageDirectory();
+        final fileName = 'cropped_image.png';
+        final destination = File('${appDir!.path}/$fileName');
+        await imageFile!.copy(destination.path);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Image saved to ${destination.path}'),
+          ),
+        );
+      } catch (error) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to save image: $error'),
+          ),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.black,
         title: const Text("Crop Your Image"),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.download),
+            onPressed: _downloadImage,
+          ),
+        ],
       ),
       body: Column(
         children: [
@@ -110,8 +140,7 @@ class _PickCropImageScreenState extends State<PickCropImageScreen> {
     );
   }
 
-  Widget _buildIconButton(
-      {required IconData icon, required void Function()? onpressed}) {
+  Widget _buildIconButton({required IconData icon, required void Function()? onpressed}) {
     return Container(
       width: 50,
       height: 50,

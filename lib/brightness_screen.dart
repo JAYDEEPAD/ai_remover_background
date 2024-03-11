@@ -1,7 +1,11 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart';
+
+void main() {
+  runApp(MaterialApp(home: BrightnessAdjustmentPage(),));
+}
 
 class BrightnessAdjustmentPage extends StatefulWidget {
   @override
@@ -81,11 +85,35 @@ class _BrightnessAdjustmentPageState extends State<BrightnessAdjustmentPage> {
     }
   }
 
+  // Function to handle download action
+  void _downloadImage() async {
+    if (_imageFile != null) {
+      try {
+        final appDir = await getExternalStorageDirectory();
+        final fileName = 'filtered_image.jpg';
+        print(fileName);// Change the file name as needed
+        final filteredImage = File('${appDir!.path}/$fileName');
+        print(filteredImage);
+        await filteredImage.writeAsBytes(_imageFile!.readAsBytesSync());
+        print('Filtered image saved to: ${filteredImage.path}');
+
+      } catch (error) {
+        print('Failed to save filtered image: $error');
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('Brightness Adjustment'),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.download),
+            onPressed: _downloadImage,
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         child: Center(

@@ -1,14 +1,21 @@
 import 'package:ai_remover_background/adjustinghue_screen.dart';
 import 'package:ai_remover_background/brightness_screen.dart';
 import 'package:ai_remover_background/crop_image.dart';
+import 'package:ai_remover_background/dashbord.dart';
 import 'package:ai_remover_background/home_screen.dart';
 import 'package:ai_remover_background/photofilter_screen.dart';
 import 'package:ai_remover_background/pickimage_cropper.dart';
+import 'package:ai_remover_background/screen/enhance.dart';
 import 'package:ai_remover_background/second_home.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   runApp(const MyApp());
 }
 
@@ -19,6 +26,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
       theme: ThemeData(
         // This is the theme of your application.
@@ -39,7 +47,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: PhotoFilter()
+      home: DashboardScreen()
     );
   }
 }

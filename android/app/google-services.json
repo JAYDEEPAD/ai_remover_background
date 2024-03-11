@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "154457616154",
+    "project_id": "photoeditingone-289f1",
+    "storage_bucket": "photoeditingone-289f1.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:154457616154:android:6bddb241040169154646a3",
+        "android_client_info": {
+          "package_name": "com.example.ai_remover_background"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAuynXpdrv4ZPLgnI6EHcdEtsjITGI2Adg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

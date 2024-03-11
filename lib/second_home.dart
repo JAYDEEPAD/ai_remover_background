@@ -62,48 +62,61 @@ class _SecondHomeState extends State<SecondHome> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          centerTitle: true,
-          title: const Text("AI Background Remover"),
-        ),
-        body: Center(
-          child: Column(
-            children: [
-              if(newimageUrl!=null)
-                SizedBox(height: 200,width: 200,
-                  child: Image.network(
-                    '$newimageUrl',
-                    fit: BoxFit.cover,
-                    scale: 1,
-                  ),
-                ),
-              ElevatedButton(
-                onPressed: () {
-                  setState(() {
-                    imageUrl =
-                    "https://4.img-dpreview.com/files/p/TS600x600~sample_galleries/3002635523/4971879462.jpg";
-                  });
-                  print(imageUrl);
-                },
-                child: Text(
-                  "Upload Image",
-                  style: TextStyle(fontSize: 16),
+      appBar: AppBar(
+        centerTitle: true,
+        title: const Text("AI Background Remover"),
+      ),
+      body: Center(
+        child: Column(
+          children: [
+            if (imageUrl != null)
+              SizedBox(
+                height: 200,
+                width: 200,
+                child: Image.network(
+                  '$imageUrl',
+                  fit: BoxFit.cover,
+                  scale: 1,
                 ),
               ),
-            ],
-          ),
-        ),
-        bottomNavigationBar: SizedBox(
-            height: 56,
-            child: ElevatedButton(
+            if (newimageUrl != null)
+              SizedBox(
+                height: 200,
+                width: 200,
+                child: Image.network(
+                  '$newimageUrl',
+                  fit: BoxFit.cover,
+                  scale: 1,
+                ),
+              ),
+            ElevatedButton(
               onPressed: () {
-                removeBackground();
+                setState(() {
+                  imageUrl =
+                  "https://4.img-dpreview.com/files/p/TS600x600~sample_galleries/3002635523/4971879462.jpg";
+                });
+                print(imageUrl);
               },
-              // Button text changes based on processing state
-              child: isProcessing
-                  ? CircularProgressIndicator()
-                  : Text("Remove Background"),
+              child: Text(
+                "Upload Image",
+                style: TextStyle(fontSize: 16),
+              ),
             ),
-            ),
-        );}
+          ],
+        ),
+      ),
+      bottomNavigationBar: SizedBox(
+        height: 56,
+        child: ElevatedButton(
+          onPressed: () {
+            removeBackground();
+          },
+          // Button text changes based on processing state
+          child: isProcessing
+              ? CircularProgressIndicator()
+              : Text("Remove Background"),
+        ),
+      ),
+    );
+  }
 }

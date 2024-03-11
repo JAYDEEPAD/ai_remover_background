@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:photofilters/photofilters.dart';
 import 'dart:async';
@@ -6,6 +7,7 @@ import 'dart:io';
 import 'package:path/path.dart';
 import 'package:image/image.dart' as img;
 import 'package:path_provider/path_provider.dart';
+import 'package:flutter/services.dart';
 
 void main() => runApp(
   MaterialApp(
@@ -91,10 +93,19 @@ class _PhotoFilterState extends State<PhotoFilter> {
       final fileName = basename(imageFile.path);
       final File newFile = await imageFile.copy('$savePath/$fileName');
       print(newFile);
+      await saveImageToGallery(newFile);
       return newFile;
     } catch (e) {
       print('Error saving image: $e');
       return null;
+    }
+  }
+  Future<void> saveImageToGallery(File file) async {
+    try {
+      final result = await ImageGallerySaver.saveFile(file.path);
+      print('Image saved to gallery: $result');
+    } catch (e) {
+      print('Error saving image to gallery: $e');
     }
   }
 

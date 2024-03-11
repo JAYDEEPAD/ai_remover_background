@@ -2,6 +2,12 @@ import 'dart:io';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:image_gallery_saver/image_gallery_saver.dart';
+import 'package:path_provider/path_provider.dart';
+
+void main(){
+  runApp(MaterialApp(home: HueScreen(),));
+}
 
 class HueScreen extends StatefulWidget {
   @override
@@ -44,7 +50,7 @@ class _HueScreenState extends State<HueScreen> {
 
   // Function to generate the ColorFilter matrix for hue adjustment
   List<double> _generateHueMatrix(double hue) {
-    final double _radians = (hue * (3.141592653589793238 / 180));
+    final double _radians = (hue * (pi / 180));
     final double _cosVal = 0.5 * (1 - cos(_radians));
     final double _sinVal = 0.5 * (1 - sin(_radians));
 
@@ -72,11 +78,29 @@ class _HueScreenState extends State<HueScreen> {
     ];
   }
 
+  // Function to handle download action
+  void _downloadImage() async {
+    if (_imageFile != null) {
+      try {
+        final result = await ImageGallerySaver.saveImage(_imageFile!.readAsBytesSync());
+        print('Image saved to gallery: $result');
+      } catch (error) {
+        print('Failed to save image: $error');
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('Hue Adjustment'),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.download),
+            onPressed: _downloadImage,
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         child: Center(
