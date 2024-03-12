@@ -36,7 +36,7 @@ class _LoginPageState extends State<LoginPage> {
   userLogin() async {
     try {
       await FirebaseAuth.instance
-          .createUserWithEmailAndPassword(email: email, password: password);
+          .signInWithEmailAndPassword(email: email, password: password);
       Navigator.push(
           context, MaterialPageRoute(builder: (context) => DashboardScreen()));
     } on FirebaseAuthException catch (e) {
