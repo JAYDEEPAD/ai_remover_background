@@ -52,6 +52,8 @@ dependencies:
   photofilters:
   image_gallery_saver: ^2.0.3
   fluttertoast: ^8.2.4
+  page_view_dot_indicator: ^2.3.0
+  device_preview: ^1.1.0
 
 dev_dependencies:
   flutter_test:
