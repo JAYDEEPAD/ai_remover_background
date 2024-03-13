@@ -110,7 +110,7 @@ class _signupState extends State<signup> {
                           bottomLeft: Radius.circular(100),
                         ),
                         child: Image.asset(
-                          'assets/images/signup.png',
+                          'assets/image/signup.png',
                           fit: BoxFit.cover,
                         ),
                       ),

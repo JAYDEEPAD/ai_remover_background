@@ -2,6 +2,7 @@
 
 import 'dart:io';
 
+import 'package:ai_remover_background/filtter.dart';
 import 'package:ai_remover_background/screen/Filters.dart';
 import 'package:ai_remover_background/second_home.dart';
 import 'package:ai_remover_background/setting.dart';
@@ -670,7 +671,7 @@ class _EnhanceState extends State<Enhance> {
                                      if(pickedImage != null){
                                        File imageFile=File(pickedImage.path);
                                        Navigator.push(context,
-                                           MaterialPageRoute(builder: (context)=>Filters(imageFile: imageFile,)));
+                                           MaterialPageRoute(builder: (context)=>FilterScreen(imageFile: imageFile,)));
                                      }
                                    },// onTap: (){
                                    //   all = true;
@@ -738,7 +739,7 @@ class _EnhanceState extends State<Enhance> {
                                      if(pickedImage != null){
                                        File imageFile=File(pickedImage.path);
                                        Navigator.push(context,
-                                           MaterialPageRoute(builder: (context)=>Filters(imageFile: imageFile,)));
+                                           MaterialPageRoute(builder: (context)=>FilterScreen(imageFile: imageFile,)));
                                      }
                                    },
                                    // onTap: (){
