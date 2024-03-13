@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 
 import 'onnbord.dart';
-
+// void main(){
+//   runApp(MaterialApp
+//     (
+//       debugShowCheckedModeBanner: false,home: SplashScreen()));
+// }
 class SplashScreen extends StatefulWidget {
   @override
   _SplashScreenState createState() => _SplashScreenState();
@@ -15,7 +19,8 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   _navigateToMainScreen() async {
-    await Future.delayed(Duration(seconds: 5)); // Display splash screen for 5 seconds
+    await Future.delayed(Duration(seconds: 6),
+    );
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (context) => OnboardingScreen()),
@@ -24,40 +29,42 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.deepPurple[200],
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            CircleAvatar(
-              radius: 50.0,
-              backgroundColor: Colors.white,
-              child: CircleAvatar(
-                radius: 45.0,
-                backgroundImage: AssetImage('assets/image/img.png'), // Replace with your avatar image
-              ),
+    return
+      Scaffold(
+        body: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                Colors.deepPurple[100]!,
+                Colors.deepPurple[200]!,
+                Colors.deepPurple[300]!,
+                Colors.deepPurple[400]!,
+                Colors.deepPurple[500]!,
+              ],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
             ),
-            SizedBox(height: 20.0),
-            Text(
-              'Photo Me',
-              style: TextStyle(
-                fontSize: 24.0,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
+          ),
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Image(image: AssetImage('assets/image/img_13.png'), height: 60, width: 60),
+                SizedBox(height: 20.0),
+                Text(
+                  'Photo Me',
+                  style: TextStyle(
+                    fontSize: 20.0,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+              ],
             ),
-            SizedBox(height: 10.0),
-            Text(
-              'Loading...',
-              style: TextStyle(
-                fontSize: 18.0,
-                color: Colors.white,
-              ),
-            ),
-          ],
+          ),
         ),
-      ),
-    );
+      );
   }
 }
+
+

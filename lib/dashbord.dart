@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:ai_remover_background/screen/Filters.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -71,10 +70,53 @@ class _DashboardScreenState extends State<DashboardScreen> {
     });
   }
 
+  Widget _buildUserImage(String imageURL) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Container(
+        height: 50,
+        width: 80,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(10),
+          child: Image.network(
+            imageURL,
+            fit: BoxFit.cover,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDefaultImageList() {
+    return ListView.builder(
+      scrollDirection: Axis.horizontal,
+      itemCount: products.length,
+      itemBuilder: (context, index) {
+        return Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Container(
+            height: 50,
+            width: 80,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: Image.asset(
+                '${products[index]['image_path']}',
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+
+
   @override
   Widget build(BuildContext context) {
     return
-      SafeArea(child:
+      SafeArea(
+        child:
         Scaffold(
           bottomNavigationBar: BottomNavigationBar(
             backgroundColor: Colors.white,
@@ -85,7 +127,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     backgroundColor: Colors.green,
                 ),
                 BottomNavigationBarItem(
-                    icon: Icon(Icons.heart_broken_sharp),
+                    icon: Icon(Icons.favorite),
                     label: "Enhenace",
                     backgroundColor: Colors.yellow,
                 ),
@@ -316,12 +358,37 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             ],
                           ),
 
-                          Padding(
+                          FutureBuilder<DocumentSnapshot>(
+                            future: FirebaseFirestore.instance.collection('users').doc('${FirebaseAuth.instance.currentUser!.uid}').get(),
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState == ConnectionState.waiting) {
+                                return CircularProgressIndicator();
+                              } else if (snapshot.hasError) {
+                                return Text('Error: ${snapshot.error}');
+                              } else {
+                                final data = snapshot.data!.data() as Map<String, dynamic>;
+                                print(data);
+                                final imageURL = data['imageURL'] as String?;
+                                print(imageURL);
+
+                                return Padding(
+                                  padding: const EdgeInsets.only(left: 13, right: 13),
+                                  child: SizedBox(
+                                    height: 100,
+                                    child: imageURL != null ? _buildUserImage(imageURL) : _buildDefaultImageList(),
+                                  ),
+                                );
+                              }
+                            },
+                          ),
+
+
+
+                          /*Padding(
                             padding: const EdgeInsets.only(left: 13, right: 13),
                             child: SizedBox(
                               height: 100,
                               child:
-
                                   FutureBuilder<DocumentSnapshot>(
                                     future: FirebaseFirestore.instance.collection('users').doc('${FirebaseAuth.instance.currentUser!.uid}').get(), // Replace 'user_id' with the actual user ID
                                     builder: (context, snapshot) {
@@ -354,7 +421,38 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
                               ),
                             ),
-                          ),
+                          ),*/
+
+                          /*Padding(
+                            padding: const EdgeInsets.only(left: 13,right: 13),
+                            child: SizedBox(
+
+                              height: 100,
+                              child: ListView.builder(
+                                  scrollDirection: Axis.horizontal,
+                                  itemCount: products.length,
+                                  itemBuilder: (context,index){
+                                    return    Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Container(
+                                        height: 50,
+                                        width: 80,
+                                        child: ClipRRect(
+                                          borderRadius: BorderRadius.circular(10),
+                                          child: Image.asset(
+                                            '${products[index]['image_path']}',
+                                            fit: BoxFit.cover,
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  }
+                              ),
+                            ),
+                          ),*/
+
+
+
 
                           /*Padding(
                             padding: const EdgeInsets.only(left: 13,right: 13),
@@ -839,8 +937,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ],
               ),
             )
-
-
         ),
       );
   }

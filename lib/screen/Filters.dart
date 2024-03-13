@@ -1,5 +1,5 @@
 import 'dart:io';
-
+import 'package:image/image.dart' as img;
 import 'package:ai_remover_background/Imagehelper.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -54,11 +54,13 @@ class _FiltersState extends State<Filters> {
         throw Exception('User not authenticated');
       }
 
+      final DateTime uploadTime = DateTime.now(); // Get current DateTime
+      print(uploadTime);
       final firebase_storage.Reference ref = firebase_storage.FirebaseStorage.instance
           .ref()
           .child('images')
-          .child('image_${DateTime.now().millisecondsSinceEpoch}.jpg');
-           print(ref.getDownloadURL());
+          .child('image_${uploadTime.microsecondsSinceEpoch}.jpg'); // Use microseconds for unique filenames
+      print(ref.getDownloadURL());
       final metadata = firebase_storage.SettableMetadata(
           contentType: 'image/jpeg',
           customMetadata: {'picked-file-path': widget.imageFile.path});
@@ -72,17 +74,52 @@ class _FiltersState extends State<Filters> {
       print(downloadURL);
       final userId = user.uid;
       print(userId);// Replace 'user_id' with the actual user ID
-      final userRef = FirebaseFirestore.instance.collection('users').doc(userId);
-       print(userRef);
-      await userRef.set({'imageURL': downloadURL});
+
+      // Create a subcollection 'images' within the user's document
+      final userRef = FirebaseFirestore.instance.collection('users').doc(userId).collection('images');
+
+      // Add a new document for the uploaded image with imageURL and uploadTime fields
+      await userRef.add({
+        'imageURL': downloadURL,
+        'uploadTime': uploadTime.toIso8601String(), // Store upload time as ISO 8601 string
+      });
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Failed to upload image: $e')),
       );
     }
+
   }
 
-
+  /*Future<void> _applyFilters(BuildContext context) async {
+    if (widget.imageFile != null) {
+      File? filteredImage = await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) async => PhotoFilterSelector(
+              title: const Text("Photo Filter Example"),
+              image: img.decodeImage( await widget.imageFile.readAsBytes())!,
+          filters: presetFiltersList,
+          filename: widget.imageFile.path,
+          loader: const Center(child: CircularProgressIndicator()),
+          fit: BoxFit.contain,
+        ),
+      ),
+    );
+    if (filteredImage != null) {
+    setState(() {
+    widget.imageFile = filteredImage;
+    });
+    }
+    } else {
+    ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+    content: Text('No image selected.'),
+    duration: const Duration(seconds: 2),
+    ),
+    );
+    }
+  }*/
 
 
   @override
@@ -90,11 +127,16 @@ class _FiltersState extends State<Filters> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: Text("filter Screen"),
+        title: Text("Edit Photo"),
       ),
       body: Column(
         children: [
-          Center(child: Image.file(widget.imageFile, height: 320, width: 320)),
+          Center(
+            child: Container(
+                height: MediaQuery.of(context).size.height * 0.40,
+                width: MediaQuery.of(context).size.width * 0.50,
+                child: Center(child: Image.file(widget.imageFile, height: 320, width: 320))),
+          ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
@@ -161,7 +203,7 @@ class _FiltersState extends State<Filters> {
                       ),
                       child: IconButton(
                         onPressed: () {
-                          
+                         /* _applyFilters(context);*/
                           // Add filters functionality here
                         },
                         icon: Icon(Icons.filter, color: Colors.white),

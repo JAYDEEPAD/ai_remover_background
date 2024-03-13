@@ -1,12 +1,20 @@
+import 'package:ai_remover_background/enhance_second.dart';
+import 'package:ai_remover_background/wrap.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:device_preview/device_preview.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
-
 import 'login.dart';
-import 'onbording.dart';
 
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+  runApp(MaterialApp(
+    home: signup(name: 'name', email: 'email', imageUrl: 'imageURl'),
+  ));
+}
 // void main() {
 //   runApp(
 //     DevicePreview(
@@ -23,9 +31,13 @@ import 'onbording.dart';
 // }
 
 class signup extends StatefulWidget {
-
-  const signup({Key? key,required this.name, required this.email, required this.imageUrl}) : super(key: key);
-   final String name;
+  const signup(
+      {Key? key,
+      required this.name,
+      required this.email,
+      required this.imageUrl})
+      : super(key: key);
+  final String name;
   final String email;
   final String imageUrl;
 
@@ -44,60 +56,37 @@ class _signupState extends State<signup> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+
   void _signUp() async {
     try {
-      UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
+      UserCredential userCredential =
+          await _auth.createUserWithEmailAndPassword(
         email: emailController.text,
         password: passwordController.text,
       );
-
+      await _firestore.collection('login').doc(userCredential.user!.uid).set({
+        'name': nameController.text,
+        'email': emailController.text,
+      });
       print('User signed up: ${userCredential.user?.email}');
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => OnBorading()),
+        MaterialPageRoute(builder: (context) => Enhance()),
       );
     } catch (e) {
       print('Error during signup: $e');
-
     }
   }
-  // void _signUp() async {
-  //   try {
-  //     UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
-  //       email: emailController.text,
-  //       password: passwordController.text,
-  //     );
-  //
-  //     // Store additional user data in Firestore
-  //     await _firestore.collection('users').doc(userCredential.user!.uid).set({
-  //       'name': nameController.text,
-  //       'email': emailController.text,
-  //       // Add other fields as needed
-  //     });
-  //
-  //     // You can do additional processing after successful signup here
-  //     // For example, you might want to update user information or navigate to a different screen.
-  //
-  //     print('User signed up: ${userCredential.user?.email}');
-  //     Navigator.push(
-  //       context,
-  //       MaterialPageRoute(builder: (context) => OnBorading()),
-  //     );
-  //   } catch (e) {
-  //     print('Error during signup: $e');
-  //     // Handle signup errors here
-  //   }
-  // }
+
   @override
   Widget build(BuildContext context) {
     nameController.text = widget.name;
     emailController.text = widget.email;
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home:
-      Scaffold(
-        body:
-        SingleChildScrollView(
+      home: Scaffold(
+        body: SingleChildScrollView(
           child: Form(
             key: _formKey,
             child: Column(
@@ -108,9 +97,9 @@ class _signupState extends State<signup> {
                   children: [
                     SizedBox(width: 15),
                     GestureDetector(
-                      onTap: (){
-                        Navigator.pop(context);
-                      },
+                        onTap: () {
+                          Navigator.pop(context);
+                        },
                         child: Icon(Icons.arrow_back_ios_new, size: 20)),
                     Spacer(),
                     Container(
@@ -121,7 +110,7 @@ class _signupState extends State<signup> {
                           bottomLeft: Radius.circular(100),
                         ),
                         child: Image.asset(
-                          'assets/image/signup.png',
+                          'assets/images/signup.png',
                           fit: BoxFit.cover,
                         ),
                       ),
@@ -150,7 +139,8 @@ class _signupState extends State<signup> {
                         SizedBox(width: 22),
                         Text(
                           "Create your account",
-                          style: TextStyle(fontSize: 15, color: Colors.grey[700]),
+                          style:
+                              TextStyle(fontSize: 15, color: Colors.grey[700]),
                         ),
                       ],
                     ),
@@ -198,7 +188,9 @@ class _signupState extends State<signup> {
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Please enter your email';
-                          } else if (!RegExp(r'^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$').hasMatch(value)) {
+                          } else if (!RegExp(
+                                  r'^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$')
+                              .hasMatch(value)) {
                             return 'Please enter a valid email address';
                           }
                           return null;
@@ -313,7 +305,10 @@ class _signupState extends State<signup> {
                     const Text("Already have an account?"),
                     TextButton(
                       onPressed: () {
-                       Navigator.push(context, MaterialPageRoute(builder: (context)=>LoginPage()));
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => LoginPage()));
                       },
                       child: const Text(
                         "Login",
@@ -322,13 +317,13 @@ class _signupState extends State<signup> {
                     ),
                   ],
                 ),
-                SizedBox(height: 20,),
-
+                SizedBox(
+                  height: 20,
+                ),
               ],
             ),
           ),
         ),
-
       ),
     );
   }
