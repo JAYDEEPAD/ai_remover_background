@@ -361,61 +361,84 @@ class _EnhanceState extends State<Enhance> {
                         ],
                       ),
 
-                      /* Padding(
+
+                       Padding(
                          padding: const EdgeInsets.only(left: 13, right: 13),
                          child: SizedBox(
                            height: 100,
-                           child: FutureBuilder<List<String>>(
-                             future: fetchUserImages(), // Function to fetch both old and new image URLs
+                           child: StreamBuilder<QuerySnapshot>(
+                             stream: FirebaseFirestore.instance
+                                 .collection('users')
+                                 .doc('${FirebaseAuth.instance.currentUser!.uid}')
+                                 .collection('images')
+                                 .orderBy('uploadTime', descending: true)
+                                 .snapshots(),
                              builder: (context, snapshot) {
                                if (snapshot.connectionState == ConnectionState.waiting) {
-                                 return CircularProgressIndicator();
+                                 return Center(child: CircularProgressIndicator());
                                } else if (snapshot.hasError) {
                                  return Text('Error: ${snapshot.error}');
+                               } else if (snapshot.data!.docs.isEmpty) {
+                                 // If there are no images uploaded by the user, display default local images
+                                 return ListView.builder(
+                                   scrollDirection: Axis.horizontal,
+                                   itemCount: products.length,
+                                   itemBuilder: (context, index) {
+                                     return Padding(
+                                       padding: const EdgeInsets.all(8.0),
+                                       child: Container(
+                                         height: 50,
+                                         width: 80,
+                                         child: ClipRRect(
+                                           borderRadius: BorderRadius.circular(10),
+                                           child: Image.asset(
+                                             '${products[index]['image_path']}',
+                                             fit: BoxFit.cover,
+                                           ),
+                                         ),
+                                       ),
+                                     );
+                                   },
+                                 );
                                } else {
-                                 final List<String> imageURLs = snapshot.data!;
-                                 final oldImageURL = imageURLs.isNotEmpty ? imageURLs[0] : null;
-                                 final newImageURL = imageURLs.length > 1 ? imageURLs[1] : null;
-
-                                 return Padding(
-                                   padding: const EdgeInsets.all(8.0),
-                                   child: Row(
-                                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                     children: [
-                                       if (oldImageURL != null)
-                                         Container(
-                                           height: 50,
-                                           width: 80,
-                                           child: ClipRRect(
-                                             borderRadius: BorderRadius.circular(10),
-                                             child: Image.network(
-                                               oldImageURL,
-                                               fit: BoxFit.cover,
-                                             ),
+                                 // If there are images uploaded by the user, display them
+                                 final List<Widget> imageWidgets = [];
+                                 final docs = snapshot.data!.docs;
+                                 for (var doc in docs) {
+                                   final data = doc.data() as Map<String, dynamic>;
+                                   final imageURL = data['imageURL'] as String;
+                                   final uploadTime = DateTime.parse(data['uploadTime']);
+                                   print(imageURL);
+                                   print(uploadTime);
+                                   imageWidgets.add(
+                                     Padding(
+                                       padding: const EdgeInsets.all(8.0),
+                                       child: Container(
+                                         width: 80,
+                                         height: 100,
+                                         child: ClipRRect(
+                                           borderRadius: BorderRadius.circular(10),
+                                           child: Image.network(
+                                             imageURL,
+                                             fit: BoxFit.cover,
                                            ),
                                          ),
-                                       if (newImageURL != null)
-                                         Container(
-                                           height: 50,
-                                           width: 80,
-                                           child: ClipRRect(
-                                             borderRadius: BorderRadius.circular(10),
-                                             child: Image.network(
-                                               newImageURL,
-                                               fit: BoxFit.cover,
-                                             ),
-                                           ),
-                                         ),
-                                     ],
-                                   ),
+                                       ),
+                                     ),
+                                   );
+                                 }
+                                 return ListView(
+                                   scrollDirection: Axis.horizontal,
+                                   children: imageWidgets,
                                  );
                                }
                              },
                            ),
                          ),
-                       ),*/
+                       ),
 
-                       Padding(
+
+                       /*Padding(
                          padding: const EdgeInsets.only(left: 13, right: 13),
                          child: SizedBox(
                            height: 100,
@@ -469,52 +492,7 @@ class _EnhanceState extends State<Enhance> {
                            ),
                          ),
                        ),
-
-
-
-
-                       /* Padding(
-                         padding: const EdgeInsets.only(left: 13, right: 13),
-                         child: SizedBox(
-                           height: 100,
-                           child: FutureBuilder<DocumentSnapshot>(
-                             future: FirebaseFirestore.instance.collection('users').doc('${FirebaseAuth.instance.currentUser!.uid}').collection('images').get(), // Replace 'user_id' with the actual user ID
-                             builder: (context, snapshot) {
-                               if (snapshot.connectionState == ConnectionState.waiting) {
-                                 return CircularProgressIndicator();
-                               } else if (snapshot.hasError) {
-                                 return Text('Error: ${snapshot.error}');
-                               } else if (snapshot.data == null || !snapshot.data!.exists) {
-                                 return Text('No data found');
-                               } else {
-                                 final data = snapshot.data!.data() as Map<String, dynamic>;
-                                 final imageURL = data['imageURL'] as String?;
-                                 if (imageURL == null) {
-                                   return Text('Image URL not found');
-                                 }
-                                 print(imageURL);
-                                 return Padding(
-                                   padding: const EdgeInsets.all(8.0),
-                                   child: Container(
-                                     height: 50,
-                                     width: 80,
-                                     child: ClipRRect(
-                                       borderRadius: BorderRadius.circular(10),
-                                       child: Image.network(
-                                         imageURL,
-                                         fit: BoxFit.cover,
-                                       ),
-                                     ),
-                                   ),
-                                 );
-                               }
-                             },
-                           ),
-                         ),
-                       ),*/
-
-
-                       /*Padding(
+                       Padding(
                          padding: const EdgeInsets.only(left: 13,right: 13),
                          child: SizedBox(
                            height: 100,
