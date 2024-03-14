@@ -1,8 +1,12 @@
 import 'package:before_after_image_slider_nullsafty/before_after_image_slider_nullsafty.dart';
 import 'package:flutter/material.dart';
 
-void main(){
-  runApp(MaterialApp(home: EffectHorizontalWidget(),));
+void main() {
+  runApp(MaterialApp(
+    home: Scaffold(
+      body: EffectHorizontalWidget(),
+    ),
+  ));
 }
 
 class EffectHorizontalWidget extends StatefulWidget {

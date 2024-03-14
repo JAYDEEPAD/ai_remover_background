@@ -370,7 +370,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 print(data);
                                 final imageURL = data['imageURL'] as String?;
                                 print(imageURL);
-
                                 return Padding(
                                   padding: const EdgeInsets.only(left: 13, right: 13),
                                   child: SizedBox(

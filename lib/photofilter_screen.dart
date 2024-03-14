@@ -108,8 +108,6 @@ class _PhotoFilterState extends State<PhotoFilter> {
       print('Error saving image to gallery: $e');
     }
   }
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(

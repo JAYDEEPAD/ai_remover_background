@@ -3,6 +3,7 @@
 import 'dart:io';
 
 import 'package:ai_remover_background/filtter.dart';
+import 'package:ai_remover_background/profile_page.dart';
 import 'package:ai_remover_background/screen/Filters.dart';
 import 'package:ai_remover_background/second_home.dart';
 import 'package:ai_remover_background/setting.dart';
@@ -28,6 +29,7 @@ class Enhance extends StatefulWidget {
 
 class _EnhanceState extends State<Enhance> {
   List<dynamic> storageImages = [];
+  String? userName;
 
 
  /* Future<List<String>> fetchUserImages() async {
@@ -119,8 +121,18 @@ class _EnhanceState extends State<Enhance> {
   void initState() {
     super.initState();
     fetchImages();
+    fetchUserName();
   }
 
+  Future<void> fetchUserName() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      await user.reload(); // Reload the user to get the latest data including the display name
+      setState(() {
+        userName = user.displayName;
+      });
+    }
+  }
 
   int _selectedIndex = 0;
   List products = [
@@ -203,9 +215,14 @@ class _EnhanceState extends State<Enhance> {
                     SizedBox(
                       width: 20,
                     ),
-                    CircleAvatar(
-                      radius:25,
-                      backgroundImage:AssetImage("assets/image/ai1.png")
+                    GestureDetector(
+                      onTap: (){
+                        Navigator.push(context, MaterialPageRoute(builder: (context)=>Profile()));
+                      },
+                      child: CircleAvatar(
+                        radius:25,
+                        backgroundImage:AssetImage("assets/image/ai1.png")
+                      ),
                     ),
                     SizedBox(
                       width: 18,
@@ -217,7 +234,6 @@ class _EnhanceState extends State<Enhance> {
                           style:
                           TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                         ),
-
                         Row(
                           children: [
                             SizedBox(width: 7,),
@@ -228,7 +244,6 @@ class _EnhanceState extends State<Enhance> {
                     ),
                     // SizedBox(width: 30,),
                     Spacer(),
-
                     Row(
                       children: [
                         //this is for notification
@@ -413,16 +428,38 @@ class _EnhanceState extends State<Enhance> {
                                    print(imageURL);
                                    print(uploadTime);
                                    imageWidgets.add(
-                                     Padding(
-                                       padding: const EdgeInsets.all(8.0),
-                                       child: Container(
-                                         width: 80,
-                                         height: 100,
-                                         child: ClipRRect(
-                                           borderRadius: BorderRadius.circular(10),
-                                           child: Image.network(
-                                             imageURL,
-                                             fit: BoxFit.cover,
+                                     GestureDetector(
+                                       onTap: () {
+                                         showDialog(
+                                           context: context,
+                                           builder: (BuildContext context) {
+                                             return Dialog(
+                                               child: Container(
+                                                 width: MediaQuery.of(context).size.width * 0.7,
+                                                 height: MediaQuery.of(context).size.width * 0.7,
+                                                 decoration: BoxDecoration(
+                                                   image: DecorationImage(
+                                                     image: NetworkImage(imageURL),
+                                                     fit: BoxFit.cover,
+                                                   ),
+                                                 ),
+                                               ),
+                                             );
+                                           },
+                                         );
+                                       },
+
+                                       child: Padding(
+                                         padding: const EdgeInsets.all(8.0),
+                                         child: Container(
+                                           width: 80,
+                                           height: 100,
+                                           child: ClipRRect(
+                                             borderRadius: BorderRadius.circular(10),
+                                             child: Image.network(
+                                               imageURL,
+                                               fit: BoxFit.cover,
+                                             ),
                                            ),
                                          ),
                                        ),
@@ -442,7 +479,7 @@ class _EnhanceState extends State<Enhance> {
 
                        /*Padding(
                          padding: const EdgeInsets.only(left: 13, right: 13),
-                         child: SizedBox(
+                           child: SizedBox(
                            height: 100,
                            child: Container(
                              width: MediaQuery.of(context).size.width, // Set container width to match screen width

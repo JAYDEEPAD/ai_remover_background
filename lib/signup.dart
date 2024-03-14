@@ -59,6 +59,7 @@ class _signupState extends State<signup> {
 
 
   void _signUp() async {
+
     try {
       UserCredential userCredential =
           await _auth.createUserWithEmailAndPassword(
