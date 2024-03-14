@@ -200,8 +200,6 @@ import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:photofilters/photofilters.dart';
 import 'package:photofilters/widgets/photo_filter.dart';
 
-
-
 void main() {
   runApp(MaterialApp(
     debugShowCheckedModeBanner: false,
@@ -453,10 +451,10 @@ class _FilterScreenState extends State<FilterScreen> {
                             onPressed: () {
                              /* Navigator.push(
                                 context,
-                                MaterialPageRoute(
-                                  builder: (context) => PhotoFilter(imageFile: File('path_to_your_image'), image: widget.imageFile,),
-                                ),
-                              ); */
+                                *//*MaterialPageRoute(
+                                  builder: (context) => PhotoFilter(image: File(widget.imageFile as String), image: widget.imageFile,),
+                                ),*//*
+                              );*/
                               /* _applyFilters(context);*/
                               // Add filters functionality here
                             },
