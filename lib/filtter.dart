@@ -451,7 +451,12 @@ class _FilterScreenState extends State<FilterScreen> {
                           ),
                           child: IconButton(
                             onPressed: () {
-
+                             /* Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => PhotoFilter(imageFile: File('path_to_your_image'), image: widget.imageFile,),
+                                ),
+                              ); */
                               /* _applyFilters(context);*/
                               // Add filters functionality here
                             },

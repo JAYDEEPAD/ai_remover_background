@@ -204,8 +204,8 @@ class _EnhanceState extends State<Enhance> {
                       width: 20,
                     ),
                     CircleAvatar(
-                      radius:30,
-                      backgroundImage:AssetImage("assets/image/img_3.png")
+                      radius:25,
+                      backgroundImage:AssetImage("assets/image/ai1.png")
                     ),
                     SizedBox(
                       width: 18,
