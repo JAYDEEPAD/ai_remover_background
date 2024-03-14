@@ -185,6 +185,7 @@
 // }
 import 'dart:io';
 import 'package:ai_remover_background/Imagehelper.dart';
+import 'package:ai_remover_background/second_home.dart';
 import 'package:image/image.dart' as img;
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -477,7 +478,11 @@ class _FilterScreenState extends State<FilterScreen> {
                             borderRadius: BorderRadius.circular(10),
                           ),
                           child: IconButton(
-                            onPressed: (){},
+                            onPressed: (){
+                              Navigator.push(context,MaterialPageRoute(builder: (context)=>SecondHome()));
+
+                            },
+
                             /*onPressed: () async {
                               if (widget.imageFile != null) {
                                 var withoutBackground = await ImageHelper.removeBackground(widget.imageFile);

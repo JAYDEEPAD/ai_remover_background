@@ -204,7 +204,8 @@ class _EnhanceState extends State<Enhance> {
                       width: 20,
                     ),
                     CircleAvatar(
-                      backgroundImage: NetworkImage('https://www.flaticon.com/free-icon/profile_3135715'),
+                      radius:30,
+                      backgroundImage:AssetImage("assets/image/img_3.png")
                     ),
                     SizedBox(
                       width: 18,
