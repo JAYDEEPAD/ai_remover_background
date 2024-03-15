@@ -1,55 +1,106 @@
 import 'dart:io';
-import 'dart:math';
 import 'dart:ui';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
-
-void main() {
-  runApp(MaterialApp(home: AdjustmentScreen()));
-}
+import 'package:image_gallery_saver/image_gallery_saver.dart';
 
 class AdjustmentScreen extends StatefulWidget {
+  final File orignalimageFile;
+
+  AdjustmentScreen({Key? key, required this.orignalimageFile}) : super(key: key);
+
   @override
   _AdjustmentScreenState createState() => _AdjustmentScreenState();
 }
 
 class _AdjustmentScreenState extends State<AdjustmentScreen> {
-  File? _pickedImage;
   ColorFilter? _selectedFilter;
   double _sliderValue = 0.5; // Initial slider value
+  String _selectedFilterName = ''; // Initialize with an empty string
 
-  Future<void> _pickImage() async {
-    final pickedImageFile =
-    await ImagePicker().pickImage(source: ImageSource.gallery);
-    if (pickedImageFile != null) {
-      setState(() {
-        _pickedImage = File(pickedImageFile.path);
-        _selectedFilter = null; // Reset selected filter when picking a new image
-      });
-    }
-  }
 
-  void _applyFilter(ColorFilter filter, double value) {
+  void _applyFilter(ColorFilter filter, String filterName) {
     setState(() {
       _selectedFilter = filter;
-      _sliderValue = value;
+      _selectedFilterName = filterName;
     });
   }
 
   void _updateSliderValue(double value) {
     setState(() {
       _sliderValue = value;
+      if (_selectedFilter != null) {
+        switch (_selectedFilterName) {
+          case 'Brightness':
+            _selectedFilter = _generateColorFilter(value);
+            break;
+          case 'Exposure':
+            _selectedFilter = _generateExposureFilter(value);
+            break;
+          case 'Fade':
+            _selectedFilter = _generateFadeFilter(value);
+            break;
+          case 'Highlight':
+            _selectedFilter = _generateHighlightFilter(value);
+            break;
+          case 'Saturation':
+            _selectedFilter = _generateSaturationFilter(value);
+            break;
+          case 'Shadow':
+            _selectedFilter = _generateShadowFilter(value);
+            break;
+          case 'Blur':
+            _selectedFilter = _generateBlurFilter(value);
+            break;
+          case 'Vignette':
+            _selectedFilter = _generateVignetteFilter(value);
+            break;
+          default:
+            break;
+        }
+      }
     });
   }
+
+  /*Future<void> _saveImageToGallery() async {
+    try {
+      // Check if the modified image exists
+      if (_selectedFilter != null) {
+        // Apply the selected filter to the original image
+        final filteredImage = await _applyFilterToImage(widget.originalImageFile, _selectedFilter!);
+
+        // Save the filtered image to the gallery
+        final result = await ImageGallerySaver.saveFile(filteredImage.path);
+        if (result['isSuccess']) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Image saved to gallery')),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to save image')),
+          );
+        }
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error saving image')),
+      );
+    }
+  }*/
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('Image Adjustments'),
-        leading: IconButton(onPressed: (){}, icon: Icon(Icons.clear)),
         actions: [
-          IconButton(onPressed: (){}, icon: Icon(Icons.add_task)),
+          IconButton(onPressed: () {
+              /*_saveImageToGallery();*/
+          }, icon: Icon(Icons.download))
         ],
       ),
       body: ListView(
@@ -58,72 +109,75 @@ class _AdjustmentScreenState extends State<AdjustmentScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                ElevatedButton(
-                  onPressed: _pickImage,
-                  child: Text('Pick Image'),
+                Column(
+                  children: [
+                    if (_selectedFilter != null)
+                      ColorFiltered(
+                        colorFilter: _selectedFilter!,
+                        child: Container(
+                          width: 200, // Specify the width
+                          height: 200, // Specify the height
+                          child: Image.file(
+                            widget.orignalimageFile,
+                            fit: BoxFit.cover, // Adjust the image fit
+                          ),
+                        ),
+                      )
+                    else
+                      Container(
+                        width: 200, // Specify the width
+                        height: 200, // Specify the height
+                        child: Image.file(
+                          widget.orignalimageFile,
+                          fit: BoxFit.cover, // Adjust the image fit
+                        ),
+                      ),
+                    SizedBox(height: 20),
+                    Wrap(
+                      children: [
+                        _buildFilterButton(
+                          'Brightness',
+                          _generateColorFilter(_sliderValue),
+                        ),
+                        _buildFilterButton(
+                          'Exposure',
+                          _generateExposureFilter(_sliderValue),
+                        ),
+                        _buildFilterButton(
+                          'Fade',
+                          _generateFadeFilter(_sliderValue),
+                        ),
+                        _buildFilterButton(
+                          'Highlight',
+                          _generateHighlightFilter(_sliderValue),
+                        ),
+                        _buildFilterButton(
+                          'Saturation',
+                          _generateSaturationFilter(_sliderValue),
+                        ),
+                        _buildFilterButton(
+                          'Shadow',
+                          _generateShadowFilter(_sliderValue),
+                        ),
+                        _buildFilterButton(
+                          'Vignette',
+                          _generateVignetteFilter(_sliderValue),
+                        ),
+                        _buildFilterButton(
+                          'Blur',
+                          _generateBlurFilter(_sliderValue),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 20),
+                    Slider(
+                      value: _sliderValue,
+                      min: 0.0,
+                      max: 1.0,
+                      onChanged: _updateSliderValue,
+                    ),
+                  ],
                 ),
-                SizedBox(height: 20),
-                if (_pickedImage != null)
-                  Column(
-                    children: [
-                      if (_selectedFilter != null)
-                        ColorFiltered(
-                          colorFilter: _selectedFilter!,
-                          child: Image.file(_pickedImage!), // Display picked image
-                        )
-                      else
-                        Image.file(_pickedImage!), // Display picked image
-                      SizedBox(height: 20),
-                      Wrap(
-                        children: [
-                          _buildFilterButton(
-                            'Brightness',
-                            _generateColorFilter(_sliderValue),
-                            _sliderValue,
-                          ),
-                          _buildFilterButton(
-                            'Exposure',
-                            _generateExposureFilter(_sliderValue),
-                            _sliderValue,
-                          ),
-                          _buildFilterButton(
-                            'Fade',
-                            _generateFadeFilter(_sliderValue),
-                            _sliderValue,
-                          ),
-                          _buildFilterButton(
-                            'Highlight',
-                            _generateHighlightFilter(_sliderValue),
-                            _sliderValue,
-                          ),
-                          _buildFilterButton(
-                            'Saturation',
-                            _generateSaturationFilter(_sliderValue),
-                            _sliderValue,
-                          ),
-                          _buildFilterButton(
-                            'Shadow',
-                            _generateShadowFilter(_sliderValue),
-                            _sliderValue,
-                          ),
-                          _buildFilterButton(
-                            'Vignette',
-                            _generateVignetteFilter(_sliderValue),
-                            _sliderValue,
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 20),
-                      Slider(
-                        value: _sliderValue,
-                        min: 0.0,
-                        max: 1.0,
-                        onChanged: _updateSliderValue,
-                      ),
-                    ],
-                  ),
-                if (_pickedImage == null)
-                  Text('No image selected'),
               ],
             ),
           ),
@@ -132,21 +186,21 @@ class _AdjustmentScreenState extends State<AdjustmentScreen> {
     );
   }
 
-  Widget _buildFilterButton(
-      String label, ColorFilter filter, double sliderValue) {
-    return Column(
-      children: [
-        ElevatedButton(
-          onPressed: () => _applyFilter(filter, sliderValue),
-          child: Text(label),
+  Widget _buildFilterButton(String label, ColorFilter filter) {
+    final bool isSelected = _selectedFilterName == label;
+    final buttonColor = isSelected ? Colors.blue : null;
+    final textColor = isSelected ? Colors.white : null;
+
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: ElevatedButton(
+        onPressed: () => _applyFilter(filter, label),
+        style: ElevatedButton.styleFrom(
+          primary: buttonColor,
+          onPrimary: textColor,
         ),
-        Slider(
-          value: sliderValue,
-          min: 0.0,
-          max: 1.0,
-          onChanged: (value) => _updateSliderValue(value),
-        ),
-      ],
+        child: Text(label),
+      ),
     );
   }
 
@@ -221,6 +275,31 @@ class _AdjustmentScreenState extends State<AdjustmentScreen> {
       0,
       0,
       1.0,
+      0,
+    ]);
+  }
+
+  ColorFilter _generateBlurFilter(double blurValue) {
+    return ColorFilter.matrix([
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      blurValue * blurValue.toDouble(), // Adjust the last value to control the blur strength
       0,
     ]);
   }

@@ -185,6 +185,7 @@
 // }
 import 'dart:io';
 import 'package:ai_remover_background/Imagehelper.dart';
+import 'package:ai_remover_background/adjustment_screen.dart';
 import 'package:ai_remover_background/second_home.dart';
 import 'package:image/image.dart' as img;
 
@@ -423,7 +424,7 @@ class _FilterScreenState extends State<FilterScreen> {
                           ),
                           child: IconButton(
                             onPressed: () {
-                              // Add adjustment functionality here
+                              Navigator.push(context, MaterialPageRoute(builder: (context)=>AdjustmentScreen(orignalimageFile: widget.imageFile)));
                             },
                             icon: Icon(Icons.adjust, color: Colors.white),
                           ),
