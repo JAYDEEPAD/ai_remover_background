@@ -1,9 +1,11 @@
 import 'dart:io';
-import 'dart:ui';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
-import 'package:firebase_storage/firebase_storage.dart';
+import 'dart:ui' as ui;
+import 'dart:async';
+import 'dart:typed_data';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
+import 'package:image/image.dart' as img;
+import 'package:path_provider/path_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 
@@ -19,8 +21,8 @@ class AdjustmentScreen extends StatefulWidget {
 class _AdjustmentScreenState extends State<AdjustmentScreen> {
   ColorFilter? _selectedFilter;
   double _sliderValue = 0.5; // Initial slider value
-  String _selectedFilterName = ''; // Initialize with an empty string
-
+  String _selectedFilterName = '';// Initialize with an empty string
+   File? _imageFile;
 
   void _applyFilter(ColorFilter filter, String filterName) {
     setState(() {
@@ -65,42 +67,19 @@ class _AdjustmentScreenState extends State<AdjustmentScreen> {
     });
   }
 
-  /*Future<void> _saveImageToGallery() async {
-    try {
-      // Check if the modified image exists
-      if (_selectedFilter != null) {
-        // Apply the selected filter to the original image
-        final filteredImage = await _applyFilterToImage(widget.originalImageFile, _selectedFilter!);
-
-        // Save the filtered image to the gallery
-        final result = await ImageGallerySaver.saveFile(filteredImage.path);
-        if (result['isSuccess']) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Image saved to gallery')),
-          );
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Failed to save image')),
-          );
-        }
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error saving image')),
-      );
-    }
-  }*/
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('Image Adjustments'),
         actions: [
-          IconButton(onPressed: () {
-              /*_saveImageToGallery();*/
-          }, icon: Icon(Icons.download))
+          IconButton(
+            onPressed: () {
+              //_downloadImage();
+              _saveImageToGallery();
+            },
+            icon: Icon(Icons.download),
+          )
         ],
       ),
       body: ListView(
@@ -202,6 +181,79 @@ class _AdjustmentScreenState extends State<AdjustmentScreen> {
         child: Text(label),
       ),
     );
+  }
+
+  /*void _downloadImage() async {
+    if (_imageFile != null) {
+      try {
+        final appDir = await getExternalStorageDirectory();
+        final fileName = 'filtered_image.jpg';
+        final filteredImage = File('${appDir!.path}/$fileName');
+        await filteredImage.writeAsBytes(_imageFile!.readAsBytesSync());
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Filtered image saved to: ${filteredImage.path}')),
+        );
+      } catch (error) {
+        print('Failed to save filtered image: $error');
+      }
+    }
+  }*/
+
+  /*Future<void> _downloadImage() async {
+    if (_imageFile != null) {
+      try {
+        final appDir = await getExternalStorageDirectory();
+        final fileName = 'cropped_image.png';
+        final destination = File('${appDir!.path}/$fileName');
+        await _imageFile!.copy(destination.path);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Image saved to ${destination.path}'),
+          ),
+        );
+      } catch (error) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to save image: $error'),
+          ),
+        );
+      }
+    }
+  }*/
+
+
+  void _saveImageToGallery() async {
+    try {
+      var image = widget.orignalimageFile;
+      if (_selectedFilter != null) {
+        image = await _applyFilterToImage(image);
+      }
+
+      final result = await ImageGallerySaver.saveFile(image.path);
+      if (result['isSuccess']) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Image saved to gallery')));
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to save image')));
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+      print(e);
+    }
+  }
+
+  Future<File> _applyFilterToImage(File imageFile) async {
+    final image = img.decodeImage(await imageFile.readAsBytes())!;
+    final filteredImage = _applyFilterInBackground(image, _selectedFilter!);
+    final tempDir = await getTemporaryDirectory();
+    final tempFile = File('${tempDir.path}/filtered_image.png');
+    await tempFile.writeAsBytes(filteredImage);
+    return tempFile;
+  }
+
+  Uint8List _applyFilterInBackground(img.Image image, ColorFilter filter) {
+    final filteredImage = img.copyResize(image, width: image.width, height: image.height);
+    final byteData = img.encodePng(filteredImage);
+    return Uint8List.fromList(byteData);
   }
 
   ColorFilter _generateColorFilter(double brightness) {
@@ -403,4 +455,5 @@ class _AdjustmentScreenState extends State<AdjustmentScreen> {
       0,
     ]);
   }
+
 }
