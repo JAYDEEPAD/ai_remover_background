@@ -8,6 +8,7 @@ import 'package:image/image.dart' as img;
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
+import 'package:path/path.dart';
 
 class AdjustmentScreen extends StatefulWidget {
   final File orignalimageFile;
@@ -22,7 +23,7 @@ class _AdjustmentScreenState extends State<AdjustmentScreen> {
   ColorFilter? _selectedFilter;
   double _sliderValue = 0.5; // Initial slider value
   String _selectedFilterName = '';// Initialize with an empty string
-   File? _imageFile;
+
 
   void _applyFilter(ColorFilter filter, String filterName) {
     setState(() {
@@ -67,6 +68,48 @@ class _AdjustmentScreenState extends State<AdjustmentScreen> {
     });
   }
 
+  /*void _saveImageToGallery(BuildContext context) async {
+    try {
+      var image = widget.orignalimageFile;
+
+      // Check if a filter is selected
+      if (_selectedFilter != null) {
+        // Apply the selected filter to the image
+        image = await _applyFilterToImage(image);
+      }
+
+      // Save the filtered image to the gallery
+      final result = await ImageGallerySaver.saveFile(image.path);
+      if (result['isSuccess']) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Image saved to gallery')));
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to save image')));
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+      print(e);
+    }
+  }*/
+
+  /*Future<File> _applyFilterToImage(File imageFile) async {
+    final image = img.decodeImage(await imageFile.readAsBytes())!;
+    final filteredImage = _applyFilterInBackground(image, _selectedFilter!);
+    print(filteredImage);
+    final tempDir = await getTemporaryDirectory();
+    print(tempDir);
+    final tempFile = File('${tempDir.path}/filtered_image.png');
+    print(tempFile);
+    await tempFile.writeAsBytes(filteredImage);
+    return tempFile;
+  }*/
+
+/*
+  Uint8List _applyFilterInBackground(img.Image image, ColorFilter filter) {
+    final filteredImage = img.copyResize(image, width: image.width, height: image.height);
+    final byteData = img.encodePng(filteredImage);
+    return Uint8List.fromList(byteData);
+  }
+*/
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -75,8 +118,9 @@ class _AdjustmentScreenState extends State<AdjustmentScreen> {
         actions: [
           IconButton(
             onPressed: () {
-              //_downloadImage();
-              _saveImageToGallery();
+             // _saveImageToGallery(context);
+                            //_downloadImage();
+              //_saveImageToGallery();
             },
             icon: Icon(Icons.download),
           )
@@ -221,8 +265,7 @@ class _AdjustmentScreenState extends State<AdjustmentScreen> {
     }
   }*/
 
-
-  void _saveImageToGallery() async {
+  /*void _saveImageToGallery(context) async {
     try {
       var image = widget.orignalimageFile;
       if (_selectedFilter != null) {
@@ -262,6 +305,8 @@ class _AdjustmentScreenState extends State<AdjustmentScreen> {
     final byteData = img.encodePng(filteredImage);
     return Uint8List.fromList(byteData);
   }
+*/
+
 
   ColorFilter _generateColorFilter(double brightness) {
     return ColorFilter.matrix([
