@@ -229,7 +229,9 @@ class _AdjustmentScreenState extends State<AdjustmentScreen> {
         image = await _applyFilterToImage(image);
       }
 
+      print(image);
       final result = await ImageGallerySaver.saveFile(image.path);
+      print(result);
       if (result['isSuccess']) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Image saved to gallery')));
       } else {
@@ -243,15 +245,20 @@ class _AdjustmentScreenState extends State<AdjustmentScreen> {
 
   Future<File> _applyFilterToImage(File imageFile) async {
     final image = img.decodeImage(await imageFile.readAsBytes())!;
+    print(image);
     final filteredImage = _applyFilterInBackground(image, _selectedFilter!);
+    print(filteredImage);
     final tempDir = await getTemporaryDirectory();
+    print(tempDir);
     final tempFile = File('${tempDir.path}/filtered_image.png');
+    print(tempFile);
     await tempFile.writeAsBytes(filteredImage);
     return tempFile;
   }
 
   Uint8List _applyFilterInBackground(img.Image image, ColorFilter filter) {
     final filteredImage = img.copyResize(image, width: image.width, height: image.height);
+    print(filteredImage);
     final byteData = img.encodePng(filteredImage);
     return Uint8List.fromList(byteData);
   }
