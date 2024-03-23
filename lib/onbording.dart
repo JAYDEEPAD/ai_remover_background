@@ -1,8 +1,10 @@
 
+import 'package:ai_remover_background/screen/enhance.dart';
 import 'package:ai_remover_background/wrap.dart';
 import 'package:flutter/material.dart';
 
 
+import 'enhance_second.dart';
 import 'login.dart';
 
 // void main() {
@@ -106,7 +108,8 @@ class _OnBoradingState extends State<OnBorading> {
                   ),
                   GestureDetector(
                     onTap: (){
-                      Navigator.push(context, MaterialPageRoute(builder: (context)=>LoginPage()));
+                      Navigator.push(context, MaterialPageRoute(builder: (context)=>Enhance()));
+                     // Navigator.push(context, MaterialPageRoute(builder: (context)=>LoginPage()));
                     },
                     child: Material(
                       elevation: 5.0,

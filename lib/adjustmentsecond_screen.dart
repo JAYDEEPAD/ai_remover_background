@@ -1,29 +1,24 @@
 import 'dart:io';
-import 'dart:ui' as ui;
 import 'dart:async';
 import 'dart:typed_data';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart';
-import 'package:image/image.dart' as img;
-import 'package:path_provider/path_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
-import 'package:path/path.dart';
+import 'package:image/image.dart' as img;
 
-class AdjustmentScreen extends StatefulWidget {
-  final File orignalimageFile;
+class AdjustmentSecondScreen extends StatefulWidget {
+  final File originalImageFile;
 
-  AdjustmentScreen({Key? key, required this.orignalimageFile}) : super(key: key);
+  AdjustmentSecondScreen({Key? key, required this.originalImageFile}) : super(key: key);
 
   @override
-  _AdjustmentScreenState createState() => _AdjustmentScreenState();
+  _AdjustmentSecondScreenState createState() => _AdjustmentSecondScreenState();
 }
 
-class _AdjustmentScreenState extends State<AdjustmentScreen> {
+class _AdjustmentSecondScreenState extends State<AdjustmentSecondScreen> {
   ColorFilter? _selectedFilter;
-  double _sliderValue = 0.5; // Initial slider value
-  String _selectedFilterName = '';// Initialize with an empty string
-
+  double _sliderValue = 0.5;
+  String _selectedFilterName = '';
 
   void _applyFilter(ColorFilter filter, String filterName) {
     setState(() {
@@ -68,48 +63,6 @@ class _AdjustmentScreenState extends State<AdjustmentScreen> {
     });
   }
 
-  /*void _saveImageToGallery(BuildContext context) async {
-    try {
-      var image = widget.orignalimageFile;
-
-      // Check if a filter is selected
-      if (_selectedFilter != null) {
-        // Apply the selected filter to the image
-        image = await _applyFilterToImage(image);
-      }
-
-      // Save the filtered image to the gallery
-      final result = await ImageGallerySaver.saveFile(image.path);
-      if (result['isSuccess']) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Image saved to gallery')));
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to save image')));
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
-      print(e);
-    }
-  }*/
-
-  /*Future<File> _applyFilterToImage(File imageFile) async {
-    final image = img.decodeImage(await imageFile.readAsBytes())!;
-    final filteredImage = _applyFilterInBackground(image, _selectedFilter!);
-    print(filteredImage);
-    final tempDir = await getTemporaryDirectory();
-    print(tempDir);
-    final tempFile = File('${tempDir.path}/filtered_image.png');
-    print(tempFile);
-    await tempFile.writeAsBytes(filteredImage);
-    return tempFile;
-  }*/
-
-/*
-  Uint8List _applyFilterInBackground(img.Image image, ColorFilter filter) {
-    final filteredImage = img.copyResize(image, width: image.width, height: image.height);
-    final byteData = img.encodePng(filteredImage);
-    return Uint8List.fromList(byteData);
-  }
-*/
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -118,8 +71,6 @@ class _AdjustmentScreenState extends State<AdjustmentScreen> {
         actions: [
           IconButton(
             onPressed: () {
-             // _saveImageToGallery(context);
-                            //_downloadImage();
               _saveImageToGallery(context);
             },
             icon: Icon(Icons.download),
@@ -138,21 +89,21 @@ class _AdjustmentScreenState extends State<AdjustmentScreen> {
                       ColorFiltered(
                         colorFilter: _selectedFilter!,
                         child: Container(
-                          width: 200, // Specify the width
-                          height: 200, // Specify the height
+                          width: 200,
+                          height: 200,
                           child: Image.file(
-                            widget.orignalimageFile,
-                            fit: BoxFit.cover, // Adjust the image fit
+                            widget.originalImageFile,
+                            fit: BoxFit.cover,
                           ),
                         ),
                       )
                     else
                       Container(
-                        width: 200, // Specify the width
-                        height: 200, // Specify the height
+                        width: 200,
+                        height: 200,
                         child: Image.file(
-                          widget.orignalimageFile,
-                          fit: BoxFit.cover, // Adjust the image fit
+                          widget.originalImageFile,
+                          fit: BoxFit.cover,
                         ),
                       ),
                     SizedBox(height: 20),
@@ -227,105 +178,17 @@ class _AdjustmentScreenState extends State<AdjustmentScreen> {
     );
   }
 
-  /*void _downloadImage() async {
-    if (_imageFile != null) {
-      try {
-        final appDir = await getExternalStorageDirectory();
-        final fileName = 'filtered_image.jpg';
-        final filteredImage = File('${appDir!.path}/$fileName');
-        await filteredImage.writeAsBytes(_imageFile!.readAsBytesSync());
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Filtered image saved to: ${filteredImage.path}')),
-        );
-      } catch (error) {
-        print('Failed to save filtered image: $error');
-      }
-    }
-  }*/
-
-  /*Future<void> _downloadImage() async {
-    if (_imageFile != null) {
-      try {
-        final appDir = await getExternalStorageDirectory();
-        final fileName = 'cropped_image.png';
-        final destination = File('${appDir!.path}/$fileName');
-        await _imageFile!.copy(destination.path);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Image saved to ${destination.path}'),
-          ),
-        );
-      } catch (error) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to save image: $error'),
-          ),
-        );
-      }
-    }
-  }*/
-
-
-
-  /*void _saveImageToGallery(BuildContext context, ColorFilter? filter) async {
-    try {
-      var image = widget.orignalimageFile;
-
-      // Check if a filter is selected
-      if (filter != null) {
-        // Apply the selected filter to the image
-        image = await _applyFilterToImage(image, filter);
-        print(image);
-      }
-
-      // Save the filtered image to the gallery
-      final result = await ImageGallerySaver.saveFile(image.path);
-      if (result['isSuccess']) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Image saved to gallery')));
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to save image')));
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
-      print(e);
-    }
-  }
-
-  Future<File> _applyFilterToImage(File imageFile,ColorFilter filter) async {
-    final image = img.decodeImage(await imageFile.readAsBytes())!;
-    print(image);
-    final filteredImage = _applyFilterInBackground(image, _selectedFilter!);
-    print(filteredImage);
-    final tempDir = await getTemporaryDirectory();
-    print(tempDir);
-    final tempFile = File('${tempDir.path}/filtered_image.png');
-    print(tempFile);
-    await tempFile.writeAsBytes(filteredImage);
-    return tempFile;
-  }
-
-  Uint8List _applyFilterInBackground(img.Image image, ColorFilter filter) {
-    final filteredImage = img.copyResize(image, width: image.width, height: image.height);
-    print(filteredImage);
-    final byteData = img.encodePng(filteredImage);
-    return Uint8List.fromList(byteData);
-  }
-
-
-*/
   void _saveImageToGallery(BuildContext context) async {
     try {
-      var image = widget.orignalimageFile;
-      print(image);
-      // Apply the selected filter to the image
+      var imageToSave = widget.originalImageFile;
+
+      // Apply the selected filter to the image to be saved
       if (_selectedFilter != null) {
-        image = await _applyFilterToImage(image, _selectedFilter!);
-        print(image);
+        imageToSave = await _applyFilterToImage(imageToSave, _selectedFilter!);
       }
 
-      // Save the filtered image to the gallery
-      final result = await ImageGallerySaver.saveFile(image.path);
-      print(result);
+      // Save the image to the gallery
+      final result = await ImageGallerySaver.saveFile(imageToSave.path);
       if (result['isSuccess']) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Image saved to gallery')));
       } else {
@@ -336,24 +199,18 @@ class _AdjustmentScreenState extends State<AdjustmentScreen> {
       print(e);
     }
   }
-
 
   Future<File> _applyFilterToImage(File imageFile, ColorFilter filter) async {
     final image = img.decodeImage(await imageFile.readAsBytes())!;
     final filteredImage = _applyFilterInBackground(image, filter);
-    print(filteredImage);
     final tempDir = await getTemporaryDirectory();
-    print(tempDir);
     final tempFile = File('${tempDir.path}/filtered_image.png');
-    print(tempFile);
     await tempFile.writeAsBytes(img.encodePng(filteredImage));
     return tempFile;
   }
 
-
   img.Image _applyFilterInBackground(img.Image image, ColorFilter filter) {
     final filteredImage = img.copyResize(image, width: image.width, height: image.height);
-    print(filteredImage);
     return filteredImage;
   }
 
@@ -409,26 +266,27 @@ class _AdjustmentScreenState extends State<AdjustmentScreen> {
 
   ColorFilter _generateFadeFilter(double fade) {
     return ColorFilter.matrix([
-      1.0,
-      0,
-      0,
-      0,
-      fade,
-      0,
-      1.0,
-      0,
-      0,
-      fade,
-      0,
-      0,
-      1.0,
-      0,
-      fade,
-      0,
-      0,
-      0,
-      1.0,
-      0,
+        1,
+        0,
+        fade,
+        0,
+        1,
+    0,
+    fade,
+    0,
+    0,
+    1,
+    0,
+    fade,
+    0,
+    0,
+    1,
+    0,
+    fade,
+    0,
+    0,
+    1,
+    0,
     ]);
   }
 
@@ -556,5 +414,4 @@ class _AdjustmentScreenState extends State<AdjustmentScreen> {
       0,
     ]);
   }
-
 }

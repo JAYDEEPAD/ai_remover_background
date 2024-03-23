@@ -386,7 +386,7 @@ class _EnhanceState extends State<Enhance> {
                            child: StreamBuilder<QuerySnapshot>(
                              stream: FirebaseFirestore.instance
                                  .collection('users')
-                                 .doc('${FirebaseAuth.instance.currentUser!.uid}')
+                                 .doc('${FirebaseAuth.instance.currentUser?.uid ?? 'default_uid'}')
                                  .collection('images')
                                  .orderBy('uploadTime', descending: true)
                                  .snapshots(),
@@ -476,83 +476,28 @@ class _EnhanceState extends State<Enhance> {
                          ),
                        ),
 
-
-                       /*Padding(
-                         padding: const EdgeInsets.only(left: 13, right: 13),
-                           child: SizedBox(
-                           height: 100,
-                           child: Container(
-                             width: MediaQuery.of(context).size.width, // Set container width to match screen width
-                             child: StreamBuilder<QuerySnapshot>(
-                               stream: FirebaseFirestore.instance
-                                   .collection('users')
-                                   .doc('${FirebaseAuth.instance.currentUser!.uid}')
-                                   .collection('images')
-                                   .orderBy('uploadTime', descending: true)
-                                   .snapshots(),
-                               builder: (context, snapshot) {
-                                 if (snapshot.connectionState == ConnectionState.waiting) {
-                                   return Center(child: CircularProgressIndicator());
-                                 } else if (snapshot.hasError) {
-                                   return Text('Error: ${snapshot.error}');
-                                 } else {
-                                   final List<Widget> imageWidgets = [];
-                                   final docs = snapshot.data!.docs;
-                                   for (var doc in docs) {
-                                     final data = doc.data() as Map<String, dynamic>;
-                                     final imageURL = data['imageURL'] as String;
-                                     final uploadTime = DateTime.parse(data['uploadTime']);
-                                     print(imageURL);
-                                     print(uploadTime);
-                                     imageWidgets.add(
-                                       Padding(
-                                         padding: const EdgeInsets.all(8.0),
-                                         child: Container(
-                                           width: 80, // Set fixed width for each image container
-                                           height: 100, // Set fixed height for each image container
-                                           child: ClipRRect(
-                                             borderRadius: BorderRadius.circular(10),
-                                             child: Image.network(
-                                               imageURL,
-                                               fit: BoxFit.cover,
-                                             ),
-                                           ),
-                                         ),
-                                       ),
-                                     );
-                                   }
-                                   return ListView(
-                                     scrollDirection: Axis.horizontal,
-                                     children: imageWidgets,
-                                   );
-                                 }
-                               },
-                             ),
-                           ),
-                         ),
-                       ),
-                       Padding(
+                        /*Padding(
                          padding: const EdgeInsets.only(left: 13,right: 13),
                          child: SizedBox(
                            height: 100,
                            child: ListView.builder(
-                             scrollDirection: Axis.horizontal,
-                             itemCount: products.length,
+                               scrollDirection: Axis.horizontal,
+                               itemCount: products.length,
                                itemBuilder: (context,index){
-                                return    Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Container(
-                                    height: 50,
-                                    width: 80,
-                                    child: ClipRRect(
-                                      borderRadius: BorderRadius.circular(10),
-                                      child: Image.asset(
-                                        '${products[index]['image_path']}',
-                                        fit: BoxFit.cover,
-                                      ),
-                                    ),
-                                  ),
-                                );
+                                 return Padding(
+                                   padding: const EdgeInsets.all(8.0),
+                                   child: Container(
+                                     height: 50,
+                                     width: 80,
+                                     child: ClipRRect(
+                                       borderRadius: BorderRadius.circular(10),
+                                       child: Image.asset(
+                                         '${products[index]['image_path']}',
+                                         fit: BoxFit.cover,
+                                       ),
+                                     ),
+                                   ),
+                                 );
                                }
                            ),
                          ),
@@ -705,6 +650,7 @@ class _EnhanceState extends State<Enhance> {
                                children: [
                                  GestureDetector(
                                    onTap: () async {
+                                     // Padding(
                                      final pickedImage=await ImagePicker().pickImage(source: ImageSource.gallery);
                                      if(pickedImage != null){
                                        File imageFile=File(pickedImage.path);

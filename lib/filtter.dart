@@ -186,6 +186,8 @@
 import 'dart:io';
 import 'package:ai_remover_background/Imagehelper.dart';
 import 'package:ai_remover_background/adjustment_screen.dart';
+import 'package:ai_remover_background/adjustmentsecond_screen.dart';
+import 'package:ai_remover_background/login.dart';
 import 'package:ai_remover_background/second_home.dart';
 import 'package:image/image.dart' as img;
 
@@ -216,6 +218,36 @@ class FilterScreen extends StatefulWidget {
 }
 
 class _FilterScreenState extends State<FilterScreen> {
+
+  late User? _user;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkAuthState();
+  }
+
+
+  // Function to check the authentication state
+  void _checkAuthState() {
+    FirebaseAuth.instance.authStateChanges().listen((User? user) {
+      if (user != null) {
+        // User is signed in
+        setState(() {
+          _user = user;
+        });
+        _saveImageToGallery();
+      } else {
+        // User is signed out
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => LoginPage()),
+        );
+      }
+    });
+  }
+
+
 
   Future<void> _saveImageToGallery() async {
     try {
@@ -279,36 +311,38 @@ class _FilterScreenState extends State<FilterScreen> {
     }
 
   }
-
-  /*Future<void> _applyFilters(BuildContext context) async {
+/*
+  Future<void> _applyFilters(BuildContext context) async {
     if (widget.imageFile != null) {
       File? filteredImage = await Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) async => PhotoFilterSelector(
-              title: const Text("Photo Filter Example"),
-              image: img.decodeImage( await widget.imageFile.readAsBytes())!,
-          filters: presetFiltersList,
-          filename: widget.imageFile.path,
-          loader: const Center(child: CircularProgressIndicator()),
-          fit: BoxFit.contain,
+          builder: (context) => PhotoFilterSelector(
+            title: const Text("Photo Filter Example"),
+            image: widget.imageFile,
+            filters: presetFiltersList,
+            filename: widget.imageFile.path,
+            loader: const Center(child: CircularProgressIndicator()),
+            fit: BoxFit.contain,
+          ),
         ),
-      ),
-    );
-    if (filteredImage != null) {
-    setState(() {
-    widget.imageFile = filteredImage;
-    });
-    }
+      );
+      if (filteredImage != null) {
+        setState(() {
+          widget.imageFile = filteredImage;
+        });
+      }
     } else {
-    ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(
-    content: Text('No image selected.'),
-    duration: const Duration(seconds: 2),
-    ),
-    );
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('No image selected.'),
+          duration: const Duration(seconds: 2),
+        ),
+      );
     }
-  }*/
+  }
+*/
+
   @override
   Widget build(BuildContext context) {
     return
@@ -350,7 +384,8 @@ class _FilterScreenState extends State<FilterScreen> {
                 ),
                 child: InkWell(
                     onTap: (){
-                      _saveImageToGallery();
+                      _checkAuthState();
+                      //_saveImageToGallery();
                     },
                     child: Icon(Icons.download_for_offline,size: 30,color: Colors.white,)),
               ),
@@ -484,7 +519,6 @@ class _FilterScreenState extends State<FilterScreen> {
                           child: IconButton(
                             onPressed: (){
                               Navigator.push(context,MaterialPageRoute(builder: (context)=>SecondHome()));
-
                             },
 
                             /*onPressed: () async {

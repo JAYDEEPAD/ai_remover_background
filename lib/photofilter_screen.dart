@@ -12,12 +12,13 @@ import 'package:flutter/services.dart';
 void main() => runApp(
   MaterialApp(
     debugShowCheckedModeBanner: false,
-    home: PhotoFilter(),
+    //,
   ),
 );
 
 class PhotoFilter extends StatefulWidget {
-  const PhotoFilter({Key? key}) : super(key: key);
+  File imageFile;
+   PhotoFilter({Key? key, required this.imageFile}) : super(key: key);
 
   @override
   State<PhotoFilter> createState() => _PhotoFilterState();
