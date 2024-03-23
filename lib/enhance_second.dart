@@ -1,7 +1,5 @@
-
-
 import 'dart:io';
-
+import 'dart:typed_data';
 import 'package:ai_remover_background/filtter.dart';
 import 'package:ai_remover_background/profile_page.dart';
 import 'package:ai_remover_background/screen/Filters.dart';
@@ -12,6 +10,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
+
 
 import '../gridview.dart';
 void main(){
@@ -150,8 +150,19 @@ class _EnhanceState extends State<Enhance> {
       _selectedIndex = index;
     });
   }
+  File? _image;
+  Future getImage() async {
+    final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
+
+    setState(() {
+      if (pickedFile != null) {
+        _image = File(pickedFile.path);
+      }
+    });
+  }
   @override
   Widget build(BuildContext context) {
+    Uint8List? _image = context.watch<ImageProviderPicker>().image;
     return
       SafeArea(
         child:
@@ -217,11 +228,21 @@ class _EnhanceState extends State<Enhance> {
                     ),
                     GestureDetector(
                       onTap: (){
-                        Navigator.push(context, MaterialPageRoute(builder: (context)=>Profile()));
+                        Navigator.push(context, MaterialPageRoute(builder: (context)=>ProfilePage()));
                       },
-                      child: CircleAvatar(
-                        radius:25,
-                        backgroundImage:AssetImage("assets/image/ai1.png")
+                      child: Stack(
+                          children: [
+                            _image != null
+                                ? CircleAvatar(
+                              radius: 25,
+                              backgroundImage: MemoryImage(_image!),
+                            ) :
+                            CircleAvatar(
+                              backgroundImage: NetworkImage(
+                                  'https://cdn.pixabay.com/photo/2024/03/06/18/46/ai-generated-8616945_640.jpg'),
+                              radius: 20,
+                            ),
+                          ]
                       ),
                     ),
                     SizedBox(
@@ -377,7 +398,6 @@ class _EnhanceState extends State<Enhance> {
                           ),),
                         ],
                       ),
-
 
                        Padding(
                          padding: const EdgeInsets.only(left: 13, right: 13),
