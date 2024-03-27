@@ -24,6 +24,7 @@ class _AdjustmentScreenState extends State<AdjustmentScreen> {
   ColorFilter? _selectedFilter;
   double _sliderValue = 0.5; // Initial slider value
   String _selectedFilterName = ''; // Initialize with an empty string
+  GlobalKey _boundaryKey = GlobalKey();
 
 
   void _applyFilter(ColorFilter filter, String filterName) {
@@ -122,6 +123,8 @@ class _AdjustmentScreenState extends State<AdjustmentScreen> {
               // _saveImageToGallery(context);
               //_downloadImage();
               //_saveImageToGallery(context);
+
+              _saveImageToGallery(context);
             },
             icon: Icon(Icons.download),
           )
@@ -136,14 +139,17 @@ class _AdjustmentScreenState extends State<AdjustmentScreen> {
                 Column(
                   children: [
                     if (_selectedFilter != null)
-                      ColorFiltered(
-                        colorFilter: _selectedFilter!,
-                        child: Container(
-                          width: 200, // Specify the width
-                          height: 200, // Specify the height
-                          child: Image.file(
-                            widget.orignalimageFile,
-                            fit: BoxFit.cover, // Adjust the image fit
+                      RepaintBoundary(
+                        key: _boundaryKey,
+                        child: ColorFiltered(
+                          colorFilter: _selectedFilter!,
+                          child: Container(
+                            width: 200, // Specify the width
+                            height: 200, // Specify the height
+                            child: Image.file(
+                              widget.orignalimageFile,
+                              fit: BoxFit.cover, // Adjust the image fit
+                            ),
                           ),
                         ),
                       )
@@ -357,27 +363,55 @@ class _AdjustmentScreenState extends State<AdjustmentScreen> {
     return filteredImage;
   }*/
 
+  /*void _saveImageToGallery(context) async {
+    try {
+      // Capture the filtered image
+      ui.Image? filteredImage = await _captureFilteredImage();
+      if (filteredImage != null) {
+        // Convert the filtered image to bytes
+        ByteData? byteData = await filteredImage.toByteData(format: ui.ImageByteFormat.png,);
+        Uint8List pngBytes = byteData!.buffer.asUint8List();
+
+        img.Image? image = img.decodeImage(pngBytes);
+
+        // Save the image to the gallery
+        await ImageGallerySaver.saveImage(pngBytes, quality: 100);
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Image saved to gallery')));
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to save image')));
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+      print(e);
+    }
+  }*/
+
   void _saveImageToGallery(context) async {
     try {
       // Capture the filtered image
       ui.Image? filteredImage = await _captureFilteredImage();
       if (filteredImage != null) {
         // Convert the filtered image to bytes
-        ByteData? byteData = await filteredImage.toByteData(
-            format: ui.ImageByteFormat.png);
+        ByteData? byteData = await filteredImage.toByteData(format: ui.ImageByteFormat.png);
         Uint8List pngBytes = byteData!.buffer.asUint8List();
 
-        // Save the image to the gallery
-        await ImageGallerySaver.saveImage(pngBytes);
-        ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Image saved to gallery')));
+        // Decode PNG bytes to image object
+        img.Image? image = img.decodeImage(pngBytes);
+        if (image != null) {
+          // Encode image to JPEG format
+          Uint8List? jpegBytes = img.encodeJpg(image, quality: 100) as Uint8List?; // Set JPEG quality (0-100)
+
+          // Save the JPEG bytes to the gallery
+          await ImageGallerySaver.saveImage(jpegBytes!);
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Image saved to gallery')));
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to convert image')));
+        }
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Failed to save image')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to save image')));
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
       print(e);
     }
   }
@@ -385,24 +419,14 @@ class _AdjustmentScreenState extends State<AdjustmentScreen> {
   Future<ui.Image?> _captureFilteredImage() async {
     try {
       RenderRepaintBoundary boundary =
-      RenderRepaintBoundary(); // Create a RenderRepaintBoundary
-      RenderObject? renderObject = context
-          .findRenderObject(); // Find the RenderObject
-      if (renderObject != null && renderObject is RenderRepaintBoundary) {
-        // Check if the RenderObject is a RenderRepaintBoundary
-        ui.Image image = await boundary.toImage(
-            pixelRatio: 1.0); // Capture the image
-        return image;
-      } else {
-        print('Error: RenderRepaintBoundary not found');
-        return null;
-      }
+      _boundaryKey.currentContext!.findRenderObject() as RenderRepaintBoundary;
+      ui.Image image = await boundary.toImage(pixelRatio: 1.0); // Capture the image
+      return image;
     } catch (e) {
       print('Error capturing image: $e');
       return null;
     }
   }
-}
 
 
   ColorFilter _generateColorFilter(double brightness) {
