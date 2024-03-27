@@ -399,7 +399,7 @@ class _AdjustmentScreenState extends State<AdjustmentScreen> {
         img.Image? image = img.decodeImage(pngBytes);
         if (image != null) {
           // Encode image to JPEG format
-          Uint8List? jpegBytes = img.encodeJpg(image, quality: 100) as Uint8List?; // Set JPEG quality (0-100)
+          Uint8List? jpegBytes = img.encodeJpg(image, quality: 100,) as Uint8List?; // Set JPEG quality (0-100)
 
           // Save the JPEG bytes to the gallery
           await ImageGallerySaver.saveImage(jpegBytes!);
