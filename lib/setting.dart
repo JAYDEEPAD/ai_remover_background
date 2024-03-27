@@ -310,7 +310,6 @@ class _SettingState extends State<Setting> {
                           borderRadius: BorderRadius.circular(25),
                         ),
                         child: Column(
-
                           children: [
                             SizedBox(height: 25,),
                             Row(

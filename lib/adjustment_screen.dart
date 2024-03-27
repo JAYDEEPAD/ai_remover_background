@@ -3,6 +3,7 @@ import 'dart:ui' as ui;
 import 'dart:async';
 import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:image/image.dart' as img;
 import 'package:path_provider/path_provider.dart';
@@ -22,7 +23,7 @@ class AdjustmentScreen extends StatefulWidget {
 class _AdjustmentScreenState extends State<AdjustmentScreen> {
   ColorFilter? _selectedFilter;
   double _sliderValue = 0.5; // Initial slider value
-  String _selectedFilterName = '';// Initialize with an empty string
+  String _selectedFilterName = ''; // Initialize with an empty string
 
 
   void _applyFilter(ColorFilter filter, String filterName) {
@@ -118,9 +119,9 @@ class _AdjustmentScreenState extends State<AdjustmentScreen> {
         actions: [
           IconButton(
             onPressed: () {
-             // _saveImageToGallery(context);
-                            //_downloadImage();
-              _saveImageToGallery(context);
+              // _saveImageToGallery(context);
+              //_downloadImage();
+              //_saveImageToGallery(context);
             },
             icon: Icon(Icons.download),
           )
@@ -266,7 +267,6 @@ class _AdjustmentScreenState extends State<AdjustmentScreen> {
   }*/
 
 
-
   /*void _saveImageToGallery(BuildContext context, ColorFilter? filter) async {
     try {
       var image = widget.orignalimageFile;
@@ -313,7 +313,7 @@ class _AdjustmentScreenState extends State<AdjustmentScreen> {
 
 
 */
-  void _saveImageToGallery(BuildContext context) async {
+  /* void _saveImageToGallery(BuildContext context) async {
     try {
       var image = widget.orignalimageFile;
       print(image);
@@ -350,12 +350,60 @@ class _AdjustmentScreenState extends State<AdjustmentScreen> {
     return tempFile;
   }
 
-
-  img.Image _applyFilterInBackground(img.Image image, ColorFilter filter) {
+*/
+  /*img.Image _applyFilterInBackground(img.Image image, ColorFilter filter) {
     final filteredImage = img.copyResize(image, width: image.width, height: image.height);
     print(filteredImage);
     return filteredImage;
+  }*/
+
+  void _saveImageToGallery(context) async {
+    try {
+      // Capture the filtered image
+      ui.Image? filteredImage = await _captureFilteredImage();
+      if (filteredImage != null) {
+        // Convert the filtered image to bytes
+        ByteData? byteData = await filteredImage.toByteData(
+            format: ui.ImageByteFormat.png);
+        Uint8List pngBytes = byteData!.buffer.asUint8List();
+
+        // Save the image to the gallery
+        await ImageGallerySaver.saveImage(pngBytes);
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Image saved to gallery')));
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to save image')));
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e')));
+      print(e);
+    }
   }
+
+  Future<ui.Image?> _captureFilteredImage() async {
+    try {
+      RenderRepaintBoundary boundary =
+      RenderRepaintBoundary(); // Create a RenderRepaintBoundary
+      RenderObject? renderObject = context
+          .findRenderObject(); // Find the RenderObject
+      if (renderObject != null && renderObject is RenderRepaintBoundary) {
+        // Check if the RenderObject is a RenderRepaintBoundary
+        ui.Image image = await boundary.toImage(
+            pixelRatio: 1.0); // Capture the image
+        return image;
+      } else {
+        print('Error: RenderRepaintBoundary not found');
+        return null;
+      }
+    } catch (e) {
+      print('Error capturing image: $e');
+      return null;
+    }
+  }
+}
+
 
   ColorFilter _generateColorFilter(double brightness) {
     return ColorFilter.matrix([

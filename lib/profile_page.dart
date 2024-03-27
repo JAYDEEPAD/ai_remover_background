@@ -1,12 +1,10 @@
 import 'dart:io';
 import 'dart:typed_data';
-
 import 'package:ai_remover_background/setting.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
-
 import 'package:provider/provider.dart';
 
 void main() async {
@@ -17,7 +15,6 @@ void main() async {
 
 class ImageProviderPicker extends ChangeNotifier {
   Uint8List? _image;
-
   Uint8List? get image => _image;
 
   void setImage(Uint8List? image) {
@@ -328,8 +325,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           hintText: "Credit",
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(18),
-                            borderSide: BorderSide.none,
-                            
+                            borderSide: BorderSide.none
                           ),
                           fillColor: Colors.purple.withOpacity(0.1),
                           filled: true,
@@ -344,7 +340,6 @@ class _ProfilePageState extends State<ProfilePage> {
                         },
                       ),
                     ),
-
                   ],
                 ),
               ),

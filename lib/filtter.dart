@@ -236,7 +236,7 @@ class _FilterScreenState extends State<FilterScreen> {
         setState(() {
           _user = user;
         });
-        _saveImageToGallery();
+        //_saveImageToGallery();
       } else {
         // User is signed out
         Navigator.pushReplacement(
@@ -385,7 +385,7 @@ class _FilterScreenState extends State<FilterScreen> {
                 child: InkWell(
                     onTap: (){
                       _checkAuthState();
-                      //_saveImageToGallery();
+                      _saveImageToGallery();
                     },
                     child: Icon(Icons.download_for_offline,size: 30,color: Colors.white,)),
               ),
