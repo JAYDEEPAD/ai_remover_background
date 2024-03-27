@@ -2,6 +2,10 @@ import 'dart:io';
 import 'dart:ui' as ui;
 import 'dart:async';
 import 'dart:typed_data';
+import 'package:ai_remover_background/filtter.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
@@ -205,6 +209,25 @@ class _AdjustmentScreenState extends State<AdjustmentScreen> {
 
           // Save the JPEG bytes to the gallery
           await ImageGallerySaver.saveImage(jpegBytes!);
+
+          User? user = FirebaseAuth.instance.currentUser;
+          if (user == null) {
+            throw Exception('User not authenticated');
+          }
+
+          final DateTime uploadTime = DateTime.now(); // Get
+          final storageRef = FirebaseStorage.instance.ref().child('users/${user.uid}/images/${DateTime.now().millisecondsSinceEpoch}.png');
+          final uploadTask = storageRef.putData(pngBytes);
+          final TaskSnapshot downloadUrl = (await uploadTask);
+          final String imageURL = await downloadUrl.ref.getDownloadURL();
+          print(url);
+
+
+          await FirebaseFirestore.instance.collection('users').doc(user.uid).collection('images').add({
+            'imageUrl': imageURL,
+            'uploadTime': uploadTime.toIso8601String(),
+          });
+
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Image saved to gallery')));
         } else {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to convert image')));

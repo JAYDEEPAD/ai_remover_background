@@ -309,7 +309,6 @@ class _FilterScreenState extends State<FilterScreen> {
         SnackBar(content: Text('Failed to upload image: $e')),
       );
     }
-
   }
 /*
   Future<void> _applyFilters(BuildContext context) async {
