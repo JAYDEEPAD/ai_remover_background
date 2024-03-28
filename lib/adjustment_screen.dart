@@ -194,20 +194,13 @@ class _AdjustmentScreenState extends State<AdjustmentScreen> {
 
   void _saveImageToGallery(context) async {
     try {
-      // Capture the filtered image
       ui.Image? filteredImage = await _captureFilteredImage();
       if (filteredImage != null) {
-        // Convert the filtered image to bytes
         ByteData? byteData = await filteredImage.toByteData(format: ui.ImageByteFormat.png);
         Uint8List pngBytes = byteData!.buffer.asUint8List();
-
-        // Decode PNG bytes to image object
         img.Image? image = img.decodeImage(pngBytes);
         if (image != null) {
-          // Encode image to JPEG format
-          Uint8List? jpegBytes = img.encodeJpg(image, quality: 100,) as Uint8List?; // Set JPEG quality (0-100)
-
-          // Save the JPEG bytes to the gallery
+          Uint8List? jpegBytes = img.encodeJpg(image, quality: 100) as Uint8List?;
           await ImageGallerySaver.saveImage(jpegBytes!);
 
           User? user = FirebaseAuth.instance.currentUser;
@@ -215,19 +208,21 @@ class _AdjustmentScreenState extends State<AdjustmentScreen> {
             throw Exception('User not authenticated');
           }
 
-          final DateTime uploadTime = DateTime.now(); // Get
+          final DateTime uploadTime = DateTime.now();
+          print(uploadTime);
           final storageRef = FirebaseStorage.instance.ref().child('users/${user.uid}/images/${DateTime.now().millisecondsSinceEpoch}.png');
+          print(storageRef);
           final uploadTask = storageRef.putData(pngBytes);
-          final TaskSnapshot downloadUrl = (await uploadTask);
-          final String imageURL = await downloadUrl.ref.getDownloadURL();
+          print(uploadTask);
+          final TaskSnapshot downloadUrl = await uploadTask.whenComplete(() {});
+          print(downloadUrl);
+          final String url = await downloadUrl.ref.getDownloadURL();
           print(url);
 
-
           await FirebaseFirestore.instance.collection('users').doc(user.uid).collection('images').add({
-            'imageUrl': imageURL,
+            'imageUrl': url,
             'uploadTime': uploadTime.toIso8601String(),
           });
-
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Image saved to gallery')));
         } else {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to convert image')));
