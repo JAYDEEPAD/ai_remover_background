@@ -254,6 +254,7 @@ class _AdjustmentScreenState extends State<AdjustmentScreen> {
 
 
 
+
   ColorFilter _generateColorFilter(double brightness) {
     return ColorFilter.matrix([
       brightness,
