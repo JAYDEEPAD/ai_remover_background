@@ -467,7 +467,7 @@ class _EnhanceState extends State<Enhance> {
                               } else {
                                 final List<Widget> imageWidgets = [];
                                 if (snapshot.data!.docs.isEmpty) {
-                                  // If there are no images uploaded by the user, display default local images
+                                  // If there are no images uploaded by the user in Firestore, display default local images
                                   for (var index = 0; index < products.length; index++) {
                                     imageWidgets.add(
                                       Padding(
@@ -487,7 +487,7 @@ class _EnhanceState extends State<Enhance> {
                                     );
                                   }
                                 } else {
-                                  // If there are images uploaded by the user, display them
+                                  // If there are images uploaded by the user in Firestore, display them
                                   final docs = snapshot.data!.docs;
                                   for (var doc in docs) {
                                     final data = doc.data() as Map<String, dynamic>;
@@ -533,6 +533,25 @@ class _EnhanceState extends State<Enhance> {
                                     }
                                   }
                                 }
+                                // Add local images to the list
+                                for (var index = 0; index < products.length; index++) {
+                                  imageWidgets.add(
+                                    Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Container(
+                                        height: 50,
+                                        width: 80,
+                                        child: ClipRRect(
+                                          borderRadius: BorderRadius.circular(10),
+                                          child: Image.asset(
+                                            '${products[index]['image_path']}',
+                                            fit: BoxFit.cover,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                }
                                 return ListView(
                                   scrollDirection: Axis.horizontal,
                                   children: imageWidgets,
@@ -542,6 +561,7 @@ class _EnhanceState extends State<Enhance> {
                           ),
                         ),
                       ),
+
 
 
 

@@ -76,6 +76,11 @@ class _AdjustmentScreenState extends State<AdjustmentScreen> {
 
   @override
   Widget build(BuildContext context) {
+
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Image Adjustments'),
@@ -102,22 +107,22 @@ class _AdjustmentScreenState extends State<AdjustmentScreen> {
                         child: ColorFiltered(
                           colorFilter: _selectedFilter!,
                           child: Container(
-                            width: 200, // Specify the width
-                            height: 200, // Specify the height
+                            width: MediaQuery.of(context).size.width * 0.55, // Specify the width
+                            height: MediaQuery.of(context).size.height * 0.45, // Specify the height
                             child: Image.file(
                               widget.orignalimageFile,
-                              fit: BoxFit.cover, // Adjust the image fit
+                              fit: BoxFit.contain, // Adjust the image fit
                             ),
                           ),
                         ),
                       )
                     else
                       Container(
-                        width: 200, // Specify the width
-                        height: 200, // Specify the height
+                        width: MediaQuery.of(context).size.width * 0.55, // Specify the width
+                        height: MediaQuery.of(context).size.height * 0.45, // Specify the height
                         child: Image.file(
                           widget.orignalimageFile,
-                          fit: BoxFit.cover, // Adjust the image fit
+                          fit: BoxFit.contain, // Adjust the image fit
                         ),
                       ),
                     SizedBox(height: 20),
@@ -238,8 +243,7 @@ class _AdjustmentScreenState extends State<AdjustmentScreen> {
 
   Future<ui.Image?> _captureFilteredImage() async {
     try {
-      RenderRepaintBoundary boundary =
-      _boundaryKey.currentContext!.findRenderObject() as RenderRepaintBoundary;
+      RenderRepaintBoundary boundary = _boundaryKey.currentContext!.findRenderObject() as RenderRepaintBoundary;
       ui.Image image = await boundary.toImage(pixelRatio: 1.0); // Capture the image
       return image;
     } catch (e) {
@@ -247,6 +251,7 @@ class _AdjustmentScreenState extends State<AdjustmentScreen> {
       return null;
     }
   }
+
 
 
   ColorFilter _generateColorFilter(double brightness) {
