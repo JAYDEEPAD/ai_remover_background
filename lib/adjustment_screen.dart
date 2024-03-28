@@ -106,23 +106,37 @@ class _AdjustmentScreenState extends State<AdjustmentScreen> {
                         key: _boundaryKey,
                         child: ColorFiltered(
                           colorFilter: _selectedFilter!,
-                          child: Container(
-                            width: MediaQuery.of(context).size.width * 0.55, // Specify the width
-                            height: MediaQuery.of(context).size.height * 0.45, // Specify the height
-                            child: Image.file(
-                              widget.orignalimageFile,
-                              fit: BoxFit.contain, // Adjust the image fit
+                          child: Center(
+                            child: ClipRect(
+                              child: AspectRatio(
+                                aspectRatio: 1.0,
+                                child: Container(
+                                  width: MediaQuery.of(context).size.width * 0.55, // Specify the width
+                                  height: MediaQuery.of(context).size.height * 0.45, // Specify the height
+                                  child: Image.file(
+                                    widget.orignalimageFile,
+                                    fit: BoxFit.contain, // Adjust the image fit
+                                  ),
+                                ),
+                              ),
                             ),
                           ),
                         ),
                       )
                     else
-                      Container(
-                        width: MediaQuery.of(context).size.width * 0.55, // Specify the width
-                        height: MediaQuery.of(context).size.height * 0.45, // Specify the height
-                        child: Image.file(
-                          widget.orignalimageFile,
-                          fit: BoxFit.contain, // Adjust the image fit
+                      Center(
+                        child: ClipRect(
+                          child: AspectRatio(
+                            aspectRatio: 1,
+                            child: Container(
+                              width: MediaQuery.of(context).size.width * 0.55, // Specify the width
+                              height: MediaQuery.of(context).size.height * 0.45, // Specify the height
+                              child: Image.file(
+                                widget.orignalimageFile,
+                                fit: BoxFit.contain, // Adjust the image fit
+                              ),
+                            ),
+                          ),
                         ),
                       ),
                     SizedBox(height: 20),
@@ -205,7 +219,7 @@ class _AdjustmentScreenState extends State<AdjustmentScreen> {
         Uint8List pngBytes = byteData!.buffer.asUint8List();
         img.Image? image = img.decodeImage(pngBytes);
         if (image != null) {
-          Uint8List? jpegBytes = img.encodeJpg(image, quality: 100) as Uint8List?;
+          Uint8List? jpegBytes = img.encodeJpg(image, quality: 700) as Uint8List?;
           await ImageGallerySaver.saveImage(jpegBytes!);
 
           User? user = FirebaseAuth.instance.currentUser;
