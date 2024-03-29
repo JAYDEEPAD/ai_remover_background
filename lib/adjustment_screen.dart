@@ -87,6 +87,7 @@ class _AdjustmentScreenState extends State<AdjustmentScreen> {
         actions: [
           IconButton(
             onPressed: () {
+             // _saveImageToGallery(context);
               _saveImageToGallery(context);
             },
             icon: Icon(Icons.download),
@@ -219,7 +220,7 @@ class _AdjustmentScreenState extends State<AdjustmentScreen> {
         Uint8List pngBytes = byteData!.buffer.asUint8List();
         img.Image? image = img.decodeImage(pngBytes);
         if (image != null) {
-          Uint8List? jpegBytes = img.encodeJpg(image, quality: 700) as Uint8List?;
+          Uint8List? jpegBytes = img.encodeJpg(image, quality: 90) as Uint8List?;
           await ImageGallerySaver.saveImage(jpegBytes!);
 
           User? user = FirebaseAuth.instance.currentUser;
@@ -257,8 +258,19 @@ class _AdjustmentScreenState extends State<AdjustmentScreen> {
 
   Future<ui.Image?> _captureFilteredImage() async {
     try {
-      RenderRepaintBoundary boundary = _boundaryKey.currentContext!.findRenderObject() as RenderRepaintBoundary;
-      ui.Image image = await boundary.toImage(pixelRatio: 1.0); // Capture the image
+      RenderRepaintBoundary boundary =
+      _boundaryKey.currentContext!.findRenderObject() as RenderRepaintBoundary;
+
+      // Define the target width and height
+      final targetWidth = 700;
+      final targetHeight = 700;
+
+      // Calculate the pixel ratio required to achieve the target resolution
+      final pixelRatio = (targetWidth / boundary.size.width).clamp(1.0, double.infinity);
+
+      // Capture the image at the desired resolution
+      ui.Image? image = await boundary.toImage(pixelRatio: pixelRatio);
+
       return image;
     } catch (e) {
       print('Error capturing image: $e');
@@ -268,7 +280,48 @@ class _AdjustmentScreenState extends State<AdjustmentScreen> {
 
 
 
+  /*void _saveImageToGallery(context) async {
+    try {
+      img.Image? originalImage = img.decodeImage(await widget.orignalimageFile.readAsBytes());
 
+      if (originalImage != null) {
+        // Apply the selected filter to the original image
+        img.Image filteredImage = _applyFilterToImage(originalImage);
+
+        // Encode the filtered image as JPEG
+        List<int> jpegBytes = img.encodeJpg(filteredImage, quality: 90);
+
+        // Save the filtered image to the device's gallery
+        final result = await ImageGallerySaver.saveImage(Uint8List.fromList(jpegBytes), quality: 90);
+
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(result['isSuccess'] ? 'Image saved to gallery' : 'Failed to save image')));
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to load original image')));
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+      print(e);
+    }
+  }
+
+  img.Image _applyFilterToImage(img.Image originalImage) {
+    // Implement the logic to apply the selected filter to the original image
+    // Here, we're returning the original image as the default behavior
+    if (_selectedFilter != null) {
+      ui.Image image = img.decodeImage(img.encodeJpg(originalImage))! as ui.Image;
+      ui.PictureRecorder recorder = ui.PictureRecorder();
+      Canvas canvas = Canvas(recorder);
+      Paint paint = Paint()..colorFilter = _selectedFilter!;
+      canvas.drawImage(image, Offset.zero, paint);
+      ui.Image filteredImage = recorder.endRecording().toImage(image.width, image.height) as ui.Image;
+      ByteData? byteData = filteredImage.toByteData(format: ui.ImageByteFormat.png) as ByteData?;
+      Uint8List pngBytes = byteData!.buffer.asUint8List();
+      return img.decodeImage(pngBytes)!;
+    } else {
+      return originalImage;
+    }
+  }
+*/
   ColorFilter _generateColorFilter(double brightness) {
     return ColorFilter.matrix([
       brightness,
