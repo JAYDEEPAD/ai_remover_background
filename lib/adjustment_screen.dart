@@ -295,7 +295,7 @@ class _AdjustmentScreenState extends State<AdjustmentScreen> {
           print(url);
 
           await FirebaseFirestore.instance.collection('users').doc(user.uid).collection('images').add({
-            'imageUrl': url,
+            'imageURL': url,
             'uploadTime': uploadTime.toIso8601String(),
           });
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Image saved to gallery')));

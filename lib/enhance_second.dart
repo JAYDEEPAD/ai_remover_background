@@ -30,72 +30,41 @@ class Enhance extends StatefulWidget {
 
 class _EnhanceState extends State<Enhance> {
   List<dynamic> storageImages = [];
-  String? userName;
+  String userName = '';
 
 
-  /* Future<List<String>> fetchUserImages() async {
-    final userId = FirebaseAuth.instance.currentUser!.uid;
 
-    try {
-      final oldImageSnapshot = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(userId)
-          .get();
-
-      final oldImageURL = oldImageSnapshot.get('oldImageURL') as String;
-
-      final newImageSnapshot = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(userId)
-          .get();
-
-      final newImageURL = newImageSnapshot.get('newImageURL') as String;
-
-      return [oldImageURL, newImageURL];
-    } catch (e) {
-      print('Error fetching user images: $e');
-      return [];
-    }
-  }*/
-
-  /* Widget _buildUserImage(String imageURL) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Container(
-        height: 50,
-        width: 80,
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(10),
-          child: Image.network(
-            imageURL,
-            fit: BoxFit.cover,
-          ),
-        ),
-      ),
-    );
+  @override
+  void initState() {
+    super.initState();
+    fetchDisplayName();
+    fetchImages();
   }
-  Widget _buildDefaultImageList() {
-    return ListView.builder(
-      scrollDirection: Axis.horizontal,
-      itemCount: products.length,
-      itemBuilder: (context, index) {
-        return Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Container(
-            height: 50,
-            width: 80,
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(10),
-              child: Image.asset(
-                '${products[index]['image_path']}',
-                fit: BoxFit.cover,
-              ),
-            ),
-          ),
-        );
-      },
-    );
-  }*/
+
+
+  Future<void> fetchDisplayName() async {
+    User? user = FirebaseAuth.instance.currentUser;
+
+    if (user != null) {
+      try {
+        DocumentSnapshot<Map<String, dynamic>> snapshot = await FirebaseFirestore.instance.collection('login').doc(user.uid).get();
+
+        String? username = snapshot.data()?['name']; // Assuming 'username' is the field containing the user's login username
+        print(username);
+
+        if (username != null) {
+          setState(() {
+            userName = username;
+          });
+        } else {
+          print("Username not found in Firestore");
+        }
+      } catch (error) {
+        print("Error fetching username: $error");
+      }
+    }
+  }
+
 
   Future<void> fetchImages() async {
     // Fetch products from Firestore
@@ -115,14 +84,8 @@ class _EnhanceState extends State<Enhance> {
     return downloadURL;
   }
 
-  @override
-  void initState() {
-    super.initState();
-    fetchImages();
-    fetchUserName();
-  }
 
-  Future<void> fetchUserName() async {
+  /*Future<void> fetchUserName() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
       await user
@@ -132,7 +95,7 @@ class _EnhanceState extends State<Enhance> {
       });
     }
   }
-
+*/
   int _selectedIndex = 0;
   List products = [
     {
@@ -313,7 +276,7 @@ class _EnhanceState extends State<Enhance> {
                           SizedBox(
                             width: 7,
                           ),
-                          Text("Khushali Sarvaiya"),
+                          Text(userName),
                         ],
                       ),
                     ],
