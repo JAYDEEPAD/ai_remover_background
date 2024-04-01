@@ -30,11 +30,12 @@ class AdjustmentScreen extends StatefulWidget {
 }
 
 class _AdjustmentScreenState extends State<AdjustmentScreen> {
+
+
   ColorFilter? _selectedFilter;
   double _sliderValue = 0.5; // Initial slider value
   String _selectedFilterName = ''; // Initialize with an empty string
   GlobalKey _boundaryKey = GlobalKey();
-
   ui.Image? _filteredImage;
 
 
