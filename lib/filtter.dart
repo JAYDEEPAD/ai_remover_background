@@ -184,13 +184,16 @@
 //   }
 // }
 import 'dart:io';
+import 'dart:typed_data';
+import 'dart:ui' as ui;
 import 'package:ai_remover_background/Imagehelper.dart';
 import 'package:ai_remover_background/adjustment_screen.dart';
 import 'package:ai_remover_background/adjustmentsecond_screen.dart';
 import 'package:ai_remover_background/login.dart';
 import 'package:ai_remover_background/second_home.dart';
+import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image/image.dart' as img;
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
@@ -211,7 +214,8 @@ void main() {
 
 class FilterScreen extends StatefulWidget {
   File imageFile;
-  FilterScreen({Key? key, required this.imageFile}) : super(key: key);
+  final ui.Image? filteredImage;
+  FilterScreen({Key? key, required this.imageFile,  this.filteredImage}) : super(key: key);
 
   @override
   State<FilterScreen> createState() => _FilterScreenState();
@@ -249,22 +253,35 @@ class _FilterScreenState extends State<FilterScreen> {
 
 
 
+
   Future<void> _saveImageToGallery() async {
     try {
       final success = await ImageGallerySaver.saveFile(widget.imageFile.path);
       print(success);
       if (success) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Image saved to gallery')),
+        Fluttertoast.showToast(
+          msg: 'Image saved to gallery',
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          backgroundColor: Colors.green,
+          textColor: Colors.white,
         );
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to save image')),
+        Fluttertoast.showToast(
+          msg: 'Failed to save image',
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
         );
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(' Image saved ')),
+      Fluttertoast.showToast(
+        msg: 'Image saved',
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        backgroundColor: Colors.orange,
+        textColor: Colors.white,
       );
     }
 
@@ -274,7 +291,6 @@ class _FilterScreenState extends State<FilterScreen> {
       if (user == null) {
         throw Exception('User not authenticated');
       }
-
       final DateTime uploadTime = DateTime.now(); // Get current DateTime
       print(uploadTime);
       final firebase_storage.Reference ref = firebase_storage.FirebaseStorage.instance
@@ -295,58 +311,30 @@ class _FilterScreenState extends State<FilterScreen> {
       print(downloadURL);
       final userId = user.uid;
       print(userId);// Replace 'user_id' with the actual user ID
-
       // Create a subcollection 'images' within the user's document
       final userRef = FirebaseFirestore.instance.collection('users').doc(userId).collection('images');
-
       // Add a new document for the uploaded image with imageURL and uploadTime fields
       await userRef.add({
-        'imageURL': downloadURL,
+        'imageUrl': downloadURL,
         'uploadTime': uploadTime.toIso8601String(), // Store upload time as ISO 8601 string
       });
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to upload image: $e')),
+      Fluttertoast.showToast(
+        msg: 'Failed to upload image: $e',
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
       );
     }
   }
-/*
-  Future<void> _applyFilters(BuildContext context) async {
-    if (widget.imageFile != null) {
-      File? filteredImage = await Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => PhotoFilterSelector(
-            title: const Text("Photo Filter Example"),
-            image: widget.imageFile,
-            filters: presetFiltersList,
-            filename: widget.imageFile.path,
-            loader: const Center(child: CircularProgressIndicator()),
-            fit: BoxFit.contain,
-          ),
-        ),
-      );
-      if (filteredImage != null) {
-        setState(() {
-          widget.imageFile = filteredImage;
-        });
-      }
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('No image selected.'),
-          duration: const Duration(seconds: 2),
-        ),
-      );
-    }
-  }
-*/
+
 
   @override
   Widget build(BuildContext context) {
     return
       Scaffold(
-      appBar: AppBar(
+      /*appBar: AppBar(
         centerTitle: true,
         backgroundColor: Colors.deepPurple[200],
         title: Text("Edit Photo",style: TextStyle(fontWeight: FontWeight.bold),
@@ -392,23 +380,101 @@ class _FilterScreenState extends State<FilterScreen> {
           ),
           SizedBox(width: 20,),
         ],
-      ),
+      ),*/
       body: SingleChildScrollView(
         child: Column(
           children: [
             SizedBox(height: 50,),
-            Center(
-              child: Container(
-                 color: Colors.yellow,
-                  height: MediaQuery.of(context).size.height * 0.50,
-                  width: MediaQuery.of(context).size.width * 0.70,
-                  child: Image.file(widget.imageFile, fit:BoxFit.cover,)),
+            Padding(
+              padding: const EdgeInsets.only(left: 15, right: 15),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(20),
+                child: Container(
+                  height: 450,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: widget.filteredImage != null && widget.filteredImage is File
+                      ? Image.file(widget.filteredImage as File, fit: BoxFit.cover)
+                      : Image.file(widget.imageFile, fit: BoxFit.cover),
+                ),
+              ),
             ),
+
+            /*Padding(
+              padding: const EdgeInsets.only(left: 15, right: 15),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(20),
+                child: Container(
+                  height: 450,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                    child: widget.filteredImage != null
+                        ? Image.memory(
+                      Uint8List.fromList(
+                        img.encodePng(
+                          img.encodeJpg(widget.filteredImage!),
+                        ),
+                      ),
+                      fit: BoxFit.cover,
+                    )
+                        : Image.file(widget.imageFile, fit: BoxFit.cover),
+                    I
+                ),
+              ),
+            ),*/
+
+
+
+            SizedBox(height: 15,),
+            Row(
+              // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                SizedBox(width: 15,),
+                GestureDetector(
+                  onTap: (){
+                    Navigator.pop(context);
+                  },
+                  child: Container(
+                    child: Image.asset('assets/image/img_22.png',height: 30,width: 30,),
+                  ),
+                ) ,
+                SizedBox(width: 88,),
+                Text("Edit Photo",style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+                ),
+                SizedBox(width: 58  ,),
+                GestureDetector(
+                  onTap: (){
+                    _checkAuthState();
+                    _saveImageToGallery();
+                  },
+                  child: Container(
+                    height: 30,
+                    width: 70,
+                    decoration: BoxDecoration(
+                      color: Colors.red,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Center(
+                      child: Text("Save",style: TextStyle(
+                          color: Colors.white
+                      ),),
+                    ),
+                  ),
+                ),
+                SizedBox(width: 15,),
+              ],
+            ),
+            SizedBox(height: 33,),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                SizedBox(height: MediaQuery.of(context).size.height * 0.25),
-               // SizedBox(width: 40,),
+                // SizedBox(height: MediaQuery.of(context).size.height * 0.25),
+                // SizedBox(width: 40,),
                 SizedBox(width: 20,),
                 Center(
                   child: Column(
@@ -458,7 +524,7 @@ class _FilterScreenState extends State<FilterScreen> {
                           ),
                           child: IconButton(
                             onPressed: () {
-                              Navigator.push(context, MaterialPageRoute(builder: (context)=>AdjustmentScreen(orignalimageFile: widget.imageFile)));
+                              Navigator.push(context, MaterialPageRoute(builder: (context)=>AdjustmentScreen(orignalimageFile: widget.imageFile, imageFile: widget.imageFile,)));
                             },
                             icon: Icon(Icons.adjust, color: Colors.white),
                           ),
@@ -484,7 +550,7 @@ class _FilterScreenState extends State<FilterScreen> {
                           ),
                           child: IconButton(
                             onPressed: () {
-                             /* Navigator.push(
+                              /* Navigator.push(
                                 context,
                                 *//*MaterialPageRoute(
                                   builder: (context) => PhotoFilter(image: File(widget.imageFile as String), image: widget.imageFile,),
@@ -517,7 +583,8 @@ class _FilterScreenState extends State<FilterScreen> {
                           ),
                           child: IconButton(
                             onPressed: (){
-                              Navigator.push(context,MaterialPageRoute(builder: (context)=>SecondHome()));
+                             // Navigator.push(context,MaterialPageRoute(builder: (context)=>Background_remove()));
+
                             },
 
                             /*onPressed: () async {
@@ -543,7 +610,7 @@ class _FilterScreenState extends State<FilterScreen> {
             ),
           ],
         ),
-      ),
-    );
+        ),
+      );
   }
 }

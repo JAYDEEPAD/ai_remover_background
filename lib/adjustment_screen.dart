@@ -9,6 +9,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image/image.dart' as img;
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter/material.dart';
@@ -17,8 +18,12 @@ import 'package:path/path.dart';
 
 class AdjustmentScreen extends StatefulWidget {
   final File orignalimageFile;
+  final File imageFile;
+  final ui.Image? filteredImage;
 
-  AdjustmentScreen({Key? key, required this.orignalimageFile}) : super(key: key);
+
+  AdjustmentScreen({Key? key, required this.orignalimageFile,required this.imageFile,this.filteredImage,
+  }) : super(key: key);
 
   @override
   _AdjustmentScreenState createState() => _AdjustmentScreenState();
@@ -29,6 +34,16 @@ class _AdjustmentScreenState extends State<AdjustmentScreen> {
   double _sliderValue = 0.5; // Initial slider value
   String _selectedFilterName = ''; // Initialize with an empty string
   GlobalKey _boundaryKey = GlobalKey();
+
+  ui.Image? _filteredImage;
+
+
+  @override
+  void initState() {
+    super.initState();
+    _filteredImage = widget.filteredImage;
+  }
+
 
 
   List<Map<String, dynamic>> iconDataList = [
@@ -45,14 +60,6 @@ class _AdjustmentScreenState extends State<AdjustmentScreen> {
 
   bool _isIconButtonSelected = false;
 
-  //old code
-  /*void _applyFilter(ColorFilter filter, String filterName) {
-    setState(() {
-      _selectedFilter = filter;
-      _selectedFilterName = filterName;
-    });
-  }
-*/
 
 
 
@@ -92,7 +99,19 @@ class _AdjustmentScreenState extends State<AdjustmentScreen> {
     });
   }
 
-  @override
+  void _navigateToFilterPage(BuildContext context, ui.Image? filteredImage) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => FilterScreen(
+          imageFile: widget.imageFile,
+          filteredImage: _filteredImage,
+        ),
+      ),
+    );
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -101,10 +120,12 @@ class _AdjustmentScreenState extends State<AdjustmentScreen> {
         actions: [
           IconButton(
             onPressed: () {
-              _saveImageToGallery(context);
+              //_saveImageToGallery(context);
+              _navigateToFilterPage(context,_filteredImage);
+
             },
-            icon: Icon(Icons.download),
-          )
+            /*icon: Icon(Icons.download)*/
+            icon: Icon(Icons.check,color: Colors.black,),          )
         ],
       ),
       body: ListView(
@@ -120,7 +141,18 @@ class _AdjustmentScreenState extends State<AdjustmentScreen> {
                         key: _boundaryKey,
                         child: ColorFiltered(
                           colorFilter: _selectedFilter!,
-                          child: Center(
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(20),
+                            child: Container(
+                              margin: EdgeInsets.all(20),
+                              height: 400,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Image.file(widget.orignalimageFile,fit: BoxFit.cover,),
+                            ),
+                          ),
+                          /*Center(
                             child: ClipRect(
                               child: AspectRatio(
                                 aspectRatio: 1.0,
@@ -134,11 +166,11 @@ class _AdjustmentScreenState extends State<AdjustmentScreen> {
                                 ),
                               ),
                             ),
-                          ),
+                          ),*/
                         ),
                       )
                     else
-                      Center(
+                     /* Center(
                         child: ClipRect(
                           child: AspectRatio(
                             aspectRatio: 1,
@@ -151,6 +183,17 @@ class _AdjustmentScreenState extends State<AdjustmentScreen> {
                               ),
                             ),
                           ),
+                        ),
+                      ),*/
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(20),
+                        child: Container(
+                          margin: EdgeInsets.all(20),
+                          height: 450,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Image.file(widget.orignalimageFile,fit: BoxFit.cover),
                         ),
                       ),
                     SizedBox(height: 20),
@@ -185,7 +228,7 @@ class _AdjustmentScreenState extends State<AdjustmentScreen> {
   }
 
 
-  Widget _buildIconButton(IconData icon, String filterName) {
+ /* Widget _buildIconButton(IconData icon, String filterName) {
     final bool isSelected = _selectedFilterName == filterName;
     final buttonColor = isSelected ? Colors.blue : null;
     final textColor = isSelected ? Colors.white : null;
@@ -208,12 +251,59 @@ class _AdjustmentScreenState extends State<AdjustmentScreen> {
       ),
     );
   }
+*/
+
+
+
+  Widget _buildIconButton(IconData icon, String filterName) {
+    final bool isSelected = _selectedFilterName == filterName;
+    final buttonColor = isSelected ? Colors.deepPurple[200] : null;
+    final textColor = isSelected ? Colors.white : null;
+
+    return Padding(
+      padding: const EdgeInsets.only(left: 15, right: 15),
+      child: Column(
+        children: [
+          Material(
+            elevation: 3,
+            borderRadius: BorderRadius.circular(10),
+            child: Container(
+              height: 50,
+              width: 50,
+              decoration: BoxDecoration(
+                color: buttonColor ?? Colors.black,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: IconButton(
+                onPressed: () {
+                  _applyFilterByName(filterName);
+                  setState(() {
+                    _isIconButtonSelected = true; // Toggle the boolean variable
+                  });
+                },
+                icon: Icon(icon, color: Colors.white,),
+              ),
+            ),
+          ),
+          SizedBox(height: 5),
+          Text(
+            filterName,
+            style: TextStyle(
+              color: Colors.black,
+              fontSize: 13,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
 
   void _applyFilterByName(String filterName) {
     setState(() {
       _selectedFilterName = filterName;
       switch (filterName) {
-
         case 'Highlight':
           _selectedFilter = _generateHighlightFilter(_sliderValue);
           break;
@@ -245,28 +335,20 @@ class _AdjustmentScreenState extends State<AdjustmentScreen> {
         default:
           break;
       }
+
+      _captureFilteredImage().then((image) {
+        setState(() {
+          _filteredImage = image;
+        });
+      });
+
     });
   }
 
 
-  /*Widget _buildFilterButton(String label, ColorFilter filter) {
-    final bool isSelected = _selectedFilterName == label;
-    final buttonColor = isSelected ? Colors.blue : null;
-    final textColor = isSelected ? Colors.white : null;
 
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: ElevatedButton(
-        onPressed: () => _applyFilter(filter, label),
-        style: ElevatedButton.styleFrom(
-          primary: buttonColor,
-          onPrimary: textColor,
-        ),
-        child: Text(label),
-      ),
-    );
-  }
-*/
+
+
   void _saveImageToGallery(context) async {
     try {
       ui.Image? filteredImage = await _captureFilteredImage();
@@ -277,7 +359,15 @@ class _AdjustmentScreenState extends State<AdjustmentScreen> {
         if (image != null) {
           Uint8List? jpegBytes = img.encodeJpg(image, quality: 90) as Uint8List?;
           await ImageGallerySaver.saveImage(jpegBytes!);
+          Fluttertoast.showToast(
+            msg: ' save image to Gallary',
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.BOTTOM,
+            backgroundColor: Colors.green,
+            textColor: Colors.white,
+          );
 
+          //firebase
           User? user = FirebaseAuth.instance.currentUser;
           if (user == null) {
             throw Exception('User not authenticated');
@@ -295,21 +385,43 @@ class _AdjustmentScreenState extends State<AdjustmentScreen> {
           print(url);
 
           await FirebaseFirestore.instance.collection('users').doc(user.uid).collection('images').add({
-            'imageURL': url,
+            'imageUrl': url,
             'uploadTime': uploadTime.toIso8601String(),
           });
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Image saved to gallery')));
         } else {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to convert image')));
+          Fluttertoast.showToast(
+            msg: 'Failed to convert image',
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.BOTTOM,
+            backgroundColor: Colors.red,
+            textColor: Colors.white,
+          );
+
         }
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to save image')));
+        Fluttertoast.showToast(
+          msg: 'Failed to save image',
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+        );
+
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+      Fluttertoast.showToast(
+        msg: 'Error',
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+      );
+
       print(e);
     }
   }
+
+
 
   Future<ui.Image?> _captureFilteredImage() async {
     try {
@@ -335,48 +447,6 @@ class _AdjustmentScreenState extends State<AdjustmentScreen> {
 
 
 
-  /*void _saveImageToGallery(context) async {
-    try {
-      img.Image? originalImage = img.decodeImage(await widget.orignalimageFile.readAsBytes());
-
-      if (originalImage != null) {
-        // Apply the selected filter to the original image
-        img.Image filteredImage = _applyFilterToImage(originalImage);
-
-        // Encode the filtered image as JPEG
-        List<int> jpegBytes = img.encodeJpg(filteredImage, quality: 90);
-
-        // Save the filtered image to the device's gallery
-        final result = await ImageGallerySaver.saveImage(Uint8List.fromList(jpegBytes), quality: 90);
-
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(result['isSuccess'] ? 'Image saved to gallery' : 'Failed to save image')));
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to load original image')));
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
-      print(e);
-    }
-  }
-
-  img.Image _applyFilterToImage(img.Image originalImage) {
-    // Implement the logic to apply the selected filter to the original image
-    // Here, we're returning the original image as the default behavior
-    if (_selectedFilter != null) {
-      ui.Image image = img.decodeImage(img.encodeJpg(originalImage))! as ui.Image;
-      ui.PictureRecorder recorder = ui.PictureRecorder();
-      Canvas canvas = Canvas(recorder);
-      Paint paint = Paint()..colorFilter = _selectedFilter!;
-      canvas.drawImage(image, Offset.zero, paint);
-      ui.Image filteredImage = recorder.endRecording().toImage(image.width, image.height) as ui.Image;
-      ByteData? byteData = filteredImage.toByteData(format: ui.ImageByteFormat.png) as ByteData?;
-      Uint8List pngBytes = byteData!.buffer.asUint8List();
-      return img.decodeImage(pngBytes)!;
-    } else {
-      return originalImage;
-    }
-  }
-*/
   ColorFilter _generateColorFilter(double brightness) {
     return ColorFilter.matrix([
       brightness,

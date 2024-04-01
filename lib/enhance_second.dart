@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:typed_data';
+import 'dart:ui';
 import 'package:ai_remover_background/download.dart';
 import 'package:ai_remover_background/filtter.dart';
 import 'package:ai_remover_background/profile_page.dart';
@@ -442,338 +443,17 @@ class _EnhanceState extends State<Enhance> {
 
 
 
-                      /*Padding(
-                        padding: const EdgeInsets.only(left: 13, right: 13),
-                        child: SizedBox(
-                          height: 100,
-                          child: StreamBuilder<QuerySnapshot>(
-                            stream: FirebaseFirestore.instance
-                                .collection('users')
-                                .doc('${FirebaseAuth.instance.currentUser?.uid ?? 'default_uid'}')
-                                .collection('images')
-                                .orderBy('uploadTime', descending: true)
-                                .snapshots(),
-                            builder: (context, snapshot) {
-                              if (snapshot.connectionState == ConnectionState.waiting) {
-                                return Center(child: CircularProgressIndicator());
-                              } else if (snapshot.hasError) {
-                                return Text('Error: ${snapshot.error}');
-                              } else {
-                                final List<Widget> imageWidgets = [];
-                                if (snapshot.data!.docs.isEmpty) {
-                                  // If there are no images uploaded by the user in Firestore, display default local images
-                                  for (var index = 0; index < products.length; index++) {
-                                    imageWidgets.add(
-                                      Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Container(
-                                          height: 50,
-                                          width: 80,
-                                          child: ClipRRect(
-                                            borderRadius: BorderRadius.circular(10),
-                                            child: Image.asset(
-                                              '${products[index]['image_path']}',
-                                              fit: BoxFit.cover,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    );
-                                  }
-                                } else {
-                                  // If there are images uploaded by the user in Firestore, display them
-                                  final docs = snapshot.data!.docs;
-                                  for (var doc in docs) {
-                                    final data = doc.data() as Map<String, dynamic>;
-                                    final imageURL = data['imageUrl'] as String?;
-                                    if (imageURL != null) {
-                                      imageWidgets.add(
-                                        GestureDetector(
-                                          onTap: () {
-                                            showDialog(
-                                              context: context,
-                                              builder: (BuildContext context) {
-                                                return Dialog(
-                                                  child: Container(
-                                                    width: MediaQuery.of(context).size.width * 0.7,
-                                                    height: MediaQuery.of(context).size.width * 0.7,
-                                                    decoration: BoxDecoration(
-                                                      image: DecorationImage(
-                                                        image: NetworkImage(imageURL),
-                                                        fit: BoxFit.cover,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                );
-                                              },
-                                            );
-                                          },
-                                          child: Padding(
-                                            padding: const EdgeInsets.all(8.0),
-                                            child: Container(
-                                              width: 80,
-                                              height: 100,
-                                              child: ClipRRect(
-                                                borderRadius: BorderRadius.circular(10),
-                                                child: Image.network(
-                                                  imageURL,
-                                                  fit: BoxFit.cover,
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      );
-                                    }
-                                  }
-                                }
-                                // Add local images to the list
-                                for (var index = 0; index < products.length; index++) {
-                                  imageWidgets.add(
-                                    Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Container(
-                                        height: 50,
-                                        width: 80,
-                                        child: ClipRRect(
-                                          borderRadius: BorderRadius.circular(10),
-                                          child: Image.asset(
-                                            '${products[index]['image_path']}',
-                                            fit: BoxFit.cover,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  );
-                                }
-                                return ListView(
-                                  scrollDirection: Axis.horizontal,
-                                  children: imageWidgets,
-                                );
-                              }
-                            },
-                          ),
-                        ),
-                      ),*/
 
 
 
 
                       //Adjustment screen
 
-                     /* Padding(
-                        padding: const EdgeInsets.only(left: 13, right: 13),
-                        child: SizedBox(
-                          height: 100,
-                          child: StreamBuilder<QuerySnapshot>(
-                            stream: FirebaseFirestore.instance
-                                .collection('users')
-                                .doc('${FirebaseAuth.instance.currentUser?.uid ?? 'default_uid'}')
-                                .collection('images')
-                                .orderBy('uploadTime', descending: true) // Order by uploadTime in descending order
-                                .snapshots(),
-                            builder: (context, snapshot) {
-                              if (snapshot.connectionState == ConnectionState.waiting) {
-                                return Center(child: CircularProgressIndicator());
-                              } else if (snapshot.hasError) {
-                                return Text('Error: ${snapshot.error}');
-                              } else if (snapshot.data!.docs.isEmpty) {
-                                // If the user has no data, show the second padding with default images
-                                return Padding(
-                                  padding: const EdgeInsets.only(left: 13, right: 13),
-                                  child: SizedBox(
-                                    height: 100,
-                                    child: ListView.builder(
-                                      scrollDirection: Axis.horizontal,
-                                      itemCount: products.length,
-                                      itemBuilder: (context, index) {
-                                        return Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: Container(
-                                            height: 50,
-                                            width: 80,
-                                            child: ClipRRect(
-                                              borderRadius: BorderRadius.circular(10),
-                                              child: Image.asset(
-                                                '${products[index]['image_path']}',
-                                                fit: BoxFit.cover,
-                                              ),
-                                            ),
-                                          ),
-                                        );
-                                      },
-                                    ),
-                                  ),
-                                );
-                              } else {
-                                // If the user has data, show the first padding with images from Firestore
-                                final List<Widget> imageWidgets = [];
-                                final docs = snapshot.data!.docs;
-                                for (var doc in docs) {
-                                  final data = doc.data() as Map<String, dynamic>;
-                                  final imageURL = data['imageUrl'] as String?;
-                                  if (imageURL != null) {
-                                    imageWidgets.add(
-                                      GestureDetector(
-                                        onTap: () {
-                                          showDialog(
-                                            context: context,
-                                            builder: (BuildContext context) {
-                                              return Dialog(
-                                                child: Container(
-                                                  width: MediaQuery.of(context).size.width * 0.7,
-                                                  height: MediaQuery.of(context).size.width * 0.7,
-                                                  decoration: BoxDecoration(
-                                                    image: DecorationImage(
-                                                      image: NetworkImage(imageURL),
-                                                      fit: BoxFit.cover,
-                                                    ),
-                                                  ),
-                                                ),
-                                              );
-                                            },
-                                          );
-                                        },
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: Container(
-                                            width: 80,
-                                            height: 100,
-                                            child: ClipRRect(
-                                              borderRadius: BorderRadius.circular(10),
-                                              child: Image.network(
-                                                imageURL,
-                                                fit: BoxFit.cover,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    );
-                                  }
-                                }
-                                return Padding(
-                                  padding: const EdgeInsets.only(left: 13, right: 13),
-                                  child: SizedBox(
-                                    height: 100,
-                                    child: ListView(
-                                      scrollDirection: Axis.horizontal,
-                                      children: imageWidgets,
-                                    ),
-                                  ),
-                                );
-                              }
-                            },
-                          ),
-                        ),
-                      ),
-*/
 
 
 
-                      // CropScreen
-
-                     /* Padding(
-                         padding: const EdgeInsets.only(left: 13, right: 13),
-                         child: SizedBox(
-                           height: 100,
-                           child: StreamBuilder<QuerySnapshot>(
-                             stream: FirebaseFirestore.instance
-                                 .collection('users')
-                                 .doc('${FirebaseAuth.instance.currentUser?.uid ?? 'default_uid'}')
-                                 .collection('images')
-                                 .orderBy('uploadTime', descending: true)
-                                 .snapshots(),
-                             builder: (context, snapshot) {
-                               if (snapshot.connectionState == ConnectionState.waiting) {
-                                 return Center(child: CircularProgressIndicator());
-                               } else if (snapshot.hasError) {
-                                 return Text('Error: ${snapshot.error}');
-                               } else if (snapshot.data!.docs.isEmpty) {
-                                 // If there are no images uploaded by the user, display default local images
-                                 return ListView.builder(
-                                   scrollDirection: Axis.horizontal,
-                                   itemCount: products.length,
-                                   itemBuilder: (context, index) {
-                                     return Padding(
-                                       padding: const EdgeInsets.all(8.0),
-                                       child: Container(
-                                         height: 50,
-                                         width: 80,
-                                         child: ClipRRect(
-                                           borderRadius: BorderRadius.circular(10),
-                                           child: Image.asset(
-                                             '${products[index]['image_path']}',
-                                             fit: BoxFit.cover,
-                                           ),
-                                         ),
-                                       ),
-                                     );
-                                   },
-                                 );
-                               } else {
-                                 // If there are images uploaded by the user, display them
-                                 final List<Widget> imageWidgets = [];
-                                 final docs = snapshot.data!.docs;
-                                 for (var doc in docs) {
-                                   final data = doc.data() as Map<String, dynamic>;
-                                   final imageURL = data['imageURL'] as String?;
-                                   final uploadTime = DateTime.parse(data['uploadTime']);
-                                   print(imageURL);
-                                   print(uploadTime);
-                                   if (imageURL != null) { // Check if imageURL is not null
-                                     imageWidgets.add(
-                                       GestureDetector(
-                                         onTap: () {
-                                           showDialog(
-                                             context: context,
-                                             builder: (BuildContext context) {
-                                               return Dialog(
-                                                 child: Container(
-                                                   width: MediaQuery.of(context).size.width * 0.7,
-                                                   height: MediaQuery.of(context).size.width * 0.7,
-                                                   decoration: BoxDecoration(
-                                                     image: DecorationImage(
-                                                       image: NetworkImage(imageURL),
-                                                       fit: BoxFit.cover,
-                                                     ),
-                                                   ),
-                                                 ),
-                                               );
-                                             },
-                                           );
-                                         },
-                                         child: Padding(
-                                           padding: const EdgeInsets.all(8.0),
-                                           child: Container(
-                                             width: 80,
-                                             height: 100,
-                                             child: ClipRRect(
-                                               borderRadius: BorderRadius.circular(10),
-                                               child: Image.network(
-                                                 imageURL,
-                                                 fit: BoxFit.cover,
-                                               ),
-                                             ),
-                                           ),
-                                         ),
-                                       ),
-                                     );
-                                   }
-                                 }
-                                 return ListView(
-                                   scrollDirection: Axis.horizontal,
-                                   children: imageWidgets,
-                                 );
-                               }
-                             },
-                           ),
-                         ),
-                       ),*/
 
 
-
-                      // CropScreen
 
                       Padding(
                         padding: const EdgeInsets.only(left: 13, right: 13),
@@ -1029,85 +709,7 @@ class _EnhanceState extends State<Enhance> {
                       SizedBox(
                         height: 7,
                       ),
-                      // Material(
-                      //   elevation: 3,
-                      //   borderRadius: BorderRadius.all(Radius.circular(18)),
-                      //   child: Container(
-                      //     height: 100,
-                      //     width: MediaQuery.of(context).size.width * .91,
-                      //     decoration: BoxDecoration(
-                      //       // gradient: LinearGradient(
-                      //       //   begin: Alignment.topLeft,
-                      //       //   end: Alignment.topRight,
-                      //       //   colors: [
-                      //       //     Color.fromRGBO(124, 87, 187, .5),
-                      //       //     Color.fromRGBO(128, 200, 226, 1)
-                      //       //   ],
-                      //       // ),
-                      //       borderRadius: BorderRadius.all(Radius.circular(18)),
-                      //     ),
-                      //     child:
-                      //     Column(
-                      //       children: [
-                      //       //  Image.network('https://i.pinimg.com/564x/b4/02/e3/b402e36ca4d14f0a0f42cf26e74aec19.jpg'),
-                      //         SizedBox(height: 23,),
-                      //         Row(
-                      //           children: [
-                      //             SizedBox(width: 10,),
-                      //           Text("Animals",style: TextStyle(fontWeight: FontWeight.bold),),
-                      //
-                      //           ],
-                      //         ),
-                      //         SizedBox(height: 10,),
-                      //         Row(
-                      //           children: [
-                      //             SizedBox(width: 10,),
-                      //             Text("50+ photos",style: TextStyle(fontWeight: FontWeight.bold),),
-                      //
-                      //           ],
-                      //         ),
-                      //       ],
-                      //     ),
-                      //   ),
-                      // ),
-                      // SizedBox(
-                      //   height: 10,
-                      // ),
-                      // Row(
-                      //   children: [
-                      //     SizedBox(width: 20,),
-                      //     Text("Rcently",style: TextStyle(
-                      //       fontWeight: FontWeight.bold,
-                      //       fontSize: 17,
-                      //     ),),
-                      //   ],
-                      // ),
-                      // SizedBox(
-                      //   height: 10,
-                      // ),
-                      // SizedBox(
-                      //   height: 100,
-                      //   child: ListView.builder(
-                      //       scrollDirection: Axis.horizontal,
-                      //       itemCount: products.length,
-                      //       itemBuilder: (context,index){
-                      //         return    Padding(
-                      //           padding: const EdgeInsets.all(8.0),
-                      //           child: Container(
-                      //             height: 50,
-                      //             width: 80,
-                      //             child: ClipRRect(
-                      //               borderRadius: BorderRadius.circular(10),
-                      //               child: Image.asset(
-                      //                 '${products[index]['image_path']}',
-                      //                 fit: BoxFit.cover,
-                      //               ),
-                      //             ),
-                      //           ),
-                      //         );
-                      //       }
-                      //   ),
-                      // ),
+
                       Material(
                         elevation: 3,
                         borderRadius: BorderRadius.all(Radius.circular(18)),
@@ -1187,6 +789,7 @@ class _EnhanceState extends State<Enhance> {
                                               builder: (context) =>
                                                   FilterScreen(
                                                     imageFile: imageFile,
+                                                    
                                                   )));
                                     }
                                   }, // onTap: (){
@@ -1272,6 +875,7 @@ class _EnhanceState extends State<Enhance> {
                                               builder: (context) =>
                                                   FilterScreen(
                                                     imageFile: imageFile,
+
                                                   )));
                                     }
                                   },
