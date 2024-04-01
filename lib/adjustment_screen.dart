@@ -60,9 +60,6 @@ class _AdjustmentScreenState extends State<AdjustmentScreen> {
 
   bool _isIconButtonSelected = false;
 
-
-
-
   void _updateSliderValue(double value) {
     setState(() {
       _sliderValue = value;
