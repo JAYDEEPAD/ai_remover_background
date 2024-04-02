@@ -1,28 +1,20 @@
 import 'dart:io';
 import 'dart:ui' as ui;
 import 'dart:async';
-import 'dart:typed_data';
 import 'package:ai_remover_background/filtter.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/rendering.dart';
-import 'package:flutter/services.dart';
-import 'package:fluttertoast/fluttertoast.dart';
-import 'package:image/image.dart' as img;
-import 'package:path_provider/path_provider.dart';
 import 'package:flutter/material.dart';
-import 'package:image_gallery_saver/image_gallery_saver.dart';
-import 'package:path/path.dart';
+import 'package:flutter/rendering.dart';
 
 class AdjustmentScreen extends StatefulWidget {
   final File orignalimageFile;
   final File imageFile;
   final ui.Image? filteredImage;
 
-
-  AdjustmentScreen({Key? key, required this.orignalimageFile,required this.imageFile,this.filteredImage,
+  AdjustmentScreen({
+    Key? key,
+    required this.orignalimageFile,
+    required this.imageFile,
+    this.filteredImage,
   }) : super(key: key);
 
   @override
@@ -30,14 +22,11 @@ class AdjustmentScreen extends StatefulWidget {
 }
 
 class _AdjustmentScreenState extends State<AdjustmentScreen> {
-
-
   ColorFilter? _selectedFilter;
-  double _sliderValue = 0.5; // Initial slider value
-  String _selectedFilterName = ''; // Initialize with an empty string
+  double _sliderValue = 0.5;
+  String _selectedFilterName = '';
   GlobalKey _boundaryKey = GlobalKey();
   ui.Image? _filteredImage;
-
 
   @override
   void initState() {
@@ -45,9 +34,8 @@ class _AdjustmentScreenState extends State<AdjustmentScreen> {
     _filteredImage = widget.filteredImage;
   }
 
-
-
   List<Map<String, dynamic>> iconDataList = [
+    {"icon": Icons.auto_fix_high, "filterName": 'Auto'},
     {"icon": Icons.highlight, "filterName": 'Highlight'},
     {"icon": Icons.brightness_medium, "filterName": 'Brightness'},
     {"icon": Icons.exposure, "filterName": 'Exposure'},
@@ -56,7 +44,6 @@ class _AdjustmentScreenState extends State<AdjustmentScreen> {
     {"icon": Icons.colorize, "filterName": 'Saturation'},
     {"icon": Icons.shutter_speed, "filterName": 'Shadow'},
     {"icon": Icons.vignette, "filterName": 'Vignette'},
-    // Add more icons and filter names as needed
   ];
 
   bool _isIconButtonSelected = false;
@@ -97,7 +84,8 @@ class _AdjustmentScreenState extends State<AdjustmentScreen> {
     });
   }
 
-  void _navigateToFilterPage(BuildContext context, ui.Image? filteredImage) {
+  void _navigateToFilterPage(
+      BuildContext context, ui.Image? filteredImage) {
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -109,7 +97,6 @@ class _AdjustmentScreenState extends State<AdjustmentScreen> {
     );
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -119,11 +106,10 @@ class _AdjustmentScreenState extends State<AdjustmentScreen> {
           IconButton(
             onPressed: () {
               //_saveImageToGallery(context);
-              _navigateToFilterPage(context,_filteredImage);
-
+              _navigateToFilterPage(context, _filteredImage);
             },
-            /*icon: Icon(Icons.download)*/
-            icon: Icon(Icons.check,color: Colors.black,),          )
+            icon: Icon(Icons.check, color: Colors.black),
+          )
         ],
       ),
       body: ListView(
@@ -147,42 +133,15 @@ class _AdjustmentScreenState extends State<AdjustmentScreen> {
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(20),
                               ),
-                              child: Image.file(widget.orignalimageFile,fit: BoxFit.cover,),
-                            ),
-                          ),
-                          /*Center(
-                            child: ClipRect(
-                              child: AspectRatio(
-                                aspectRatio: 1.0,
-                                child: Container(
-                                  width: MediaQuery.of(context).size.width * 0.55, // Specify the width
-                                  height: MediaQuery.of(context).size.height * 0.45, // Specify the height
-                                  child: Image.file(
-                                    widget.orignalimageFile,
-                                    fit: BoxFit.contain, // Adjust the image fit
-                                  ),
-                                ),
+                              child: Image.file(
+                                widget.orignalimageFile,
+                                fit: BoxFit.cover,
                               ),
                             ),
-                          ),*/
+                          ),
                         ),
                       )
                     else
-                     /* Center(
-                        child: ClipRect(
-                          child: AspectRatio(
-                            aspectRatio: 1,
-                            child: Container(
-                              width: MediaQuery.of(context).size.width * 0.55, // Specify the width
-                              height: MediaQuery.of(context).size.height * 0.45, // Specify the height
-                              child: Image.file(
-                                widget.orignalimageFile,
-                                fit: BoxFit.contain, // Adjust the image fit
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),*/
                       ClipRRect(
                         borderRadius: BorderRadius.circular(20),
                         child: Container(
@@ -191,7 +150,8 @@ class _AdjustmentScreenState extends State<AdjustmentScreen> {
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(20),
                           ),
-                          child: Image.file(widget.orignalimageFile,fit: BoxFit.cover),
+                          child: Image.file(widget.orignalimageFile,
+                              fit: BoxFit.cover),
                         ),
                       ),
                     SizedBox(height: 20),
@@ -199,11 +159,12 @@ class _AdjustmentScreenState extends State<AdjustmentScreen> {
                       scrollDirection: Axis.horizontal,
                       child: Row(
                         children: iconDataList.map((iconData) {
-                          return _buildIconButton(iconData['icon'], iconData['filterName']);
+                          return _buildIconButton(
+                              iconData['icon'], iconData['filterName']);
                         }).toList(),
                       ),
                     ),
-                    if (_isIconButtonSelected) // Conditionally show the slider
+                    if (_isIconButtonSelected)
                       Column(
                         children: [
                           Slider(
@@ -225,38 +186,15 @@ class _AdjustmentScreenState extends State<AdjustmentScreen> {
     );
   }
 
-
- /* Widget _buildIconButton(IconData icon, String filterName) {
-    final bool isSelected = _selectedFilterName == filterName;
-    final buttonColor = isSelected ? Colors.blue : null;
-    final textColor = isSelected ? Colors.white : null;
-
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: ElevatedButton.icon(
-        onPressed: () {
-          _applyFilterByName(filterName);
-          setState(() {
-            _isIconButtonSelected = true; // Toggle the boolean variable
-          });
-        },
-        style: ElevatedButton.styleFrom(
-          primary: buttonColor,
-          onPrimary: textColor,
-        ),
-        icon: Icon(icon),
-        label: Text(filterName),
-      ),
-    );
-  }
-*/
-
-
-
   Widget _buildIconButton(IconData icon, String filterName) {
     final bool isSelected = _selectedFilterName == filterName;
-    final buttonColor = isSelected ? Colors.deepPurple[200] : null;
+    var buttonColor = isSelected ? Colors.deepPurple[200] : null; // Default color
     final textColor = isSelected ? Colors.white : null;
+
+    // Check if the filter is applied
+    if (_selectedFilterName != null && _selectedFilterName == filterName) {
+      buttonColor = Colors.green; // Change button color for applied filters
+    }
 
     return Padding(
       padding: const EdgeInsets.only(left: 15, right: 15),
@@ -274,12 +212,22 @@ class _AdjustmentScreenState extends State<AdjustmentScreen> {
               ),
               child: IconButton(
                 onPressed: () {
-                  _applyFilterByName(filterName);
-                  setState(() {
-                    _isIconButtonSelected = true; // Toggle the boolean variable
-                  });
+                  if (filterName == 'Auto') {
+                    _applyAllFilters(_sliderValue);
+                    setState(() {
+                      _isIconButtonSelected = true; // Show slider
+                    });
+                  } else {
+                    _applyFilterByName(filterName);
+                    setState(() {
+                      _isIconButtonSelected = true; // Show slider
+                    });
+                  }
                 },
-                icon: Icon(icon, color: Colors.white,),
+                icon: Icon(
+                  icon,
+                  color: Colors.white,
+                ),
               ),
             ),
           ),
@@ -292,11 +240,11 @@ class _AdjustmentScreenState extends State<AdjustmentScreen> {
               fontWeight: FontWeight.bold,
             ),
           ),
+
         ],
       ),
     );
   }
-
 
   void _applyFilterByName(String filterName) {
     setState(() {
@@ -305,7 +253,6 @@ class _AdjustmentScreenState extends State<AdjustmentScreen> {
         case 'Highlight':
           _selectedFilter = _generateHighlightFilter(_sliderValue);
           break;
-
         case 'Brightness':
           _selectedFilter = _generateColorFilter(_sliderValue);
           break;
@@ -324,12 +271,9 @@ class _AdjustmentScreenState extends State<AdjustmentScreen> {
         case 'Shadow':
           _selectedFilter = _generateShadowFilter(_sliderValue);
           break;
-
         case 'Vignette':
           _selectedFilter = _generateVignetteFilter(_sliderValue);
           break;
-
-      // Add cases for other filter names
         default:
           break;
       }
@@ -339,101 +283,68 @@ class _AdjustmentScreenState extends State<AdjustmentScreen> {
           _filteredImage = image;
         });
       });
-
     });
   }
 
+  void _applyAllFilters(double value) {
+    List<String> appliedFilters = [];
 
-
-
-
-  void _saveImageToGallery(context) async {
-    try {
-      ui.Image? filteredImage = await _captureFilteredImage();
-      if (filteredImage != null) {
-        ByteData? byteData = await filteredImage.toByteData(format: ui.ImageByteFormat.png);
-        Uint8List pngBytes = byteData!.buffer.asUint8List();
-        img.Image? image = img.decodeImage(pngBytes);
-        if (image != null) {
-          Uint8List? jpegBytes = img.encodeJpg(image, quality: 90) as Uint8List?;
-          await ImageGallerySaver.saveImage(jpegBytes!);
-          Fluttertoast.showToast(
-            msg: ' save image to Gallary',
-            toastLength: Toast.LENGTH_SHORT,
-            gravity: ToastGravity.BOTTOM,
-            backgroundColor: Colors.green,
-            textColor: Colors.white,
-          );
-
-          //firebase
-          User? user = FirebaseAuth.instance.currentUser;
-          if (user == null) {
-            throw Exception('User not authenticated');
-          }
-
-          final DateTime uploadTime = DateTime.now();
-          print(uploadTime);
-          final storageRef = FirebaseStorage.instance.ref().child('users/${user.uid}/images/${DateTime.now().millisecondsSinceEpoch}.png');
-          print(storageRef);
-          final uploadTask = storageRef.putData(pngBytes);
-          print(uploadTask);
-          final TaskSnapshot downloadUrl = await uploadTask.whenComplete(() {});
-          print(downloadUrl);
-          final String url = await downloadUrl.ref.getDownloadURL();
-          print(url);
-
-          await FirebaseFirestore.instance.collection('users').doc(user.uid).collection('images').add({
-            'imageUrl': url,
-            'uploadTime': uploadTime.toIso8601String(),
-          });
-        } else {
-          Fluttertoast.showToast(
-            msg: 'Failed to convert image',
-            toastLength: Toast.LENGTH_SHORT,
-            gravity: ToastGravity.BOTTOM,
-            backgroundColor: Colors.red,
-            textColor: Colors.white,
-          );
-
-        }
-      } else {
-        Fluttertoast.showToast(
-          msg: 'Failed to save image',
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.BOTTOM,
-          backgroundColor: Colors.red,
-          textColor: Colors.white,
-        );
-
+    for (var iconData in iconDataList) {
+      String filterName = iconData['filterName'];
+      switch (filterName) {
+        case 'Auto':
+          break;
+        case 'Highlight':
+          _selectedFilter = _generateHighlightFilter(value);
+          appliedFilters.add(filterName);
+          break;
+        case 'Brightness':
+          _selectedFilter = _generateColorFilter(value);
+          appliedFilters.add(filterName);
+          break;
+        case 'Exposure':
+          _selectedFilter = _generateExposureFilter(value);
+          appliedFilters.add(filterName);
+          break;
+        case 'Blur':
+          _selectedFilter = _generateBlurFilter(value);
+          appliedFilters.add(filterName);
+          break;
+        case 'Fade':
+          _selectedFilter = _generateFadeFilter(value);
+          appliedFilters.add(filterName);
+          break;
+        case 'Saturation':
+          _selectedFilter = _generateSaturationFilter(value);
+          appliedFilters.add(filterName);
+          break;
+        case 'Shadow':
+          _selectedFilter = _generateShadowFilter(value);
+          appliedFilters.add(filterName);
+          break;
+        case 'Vignette':
+          _selectedFilter = _generateVignetteFilter(value);
+          appliedFilters.add(filterName);
+          break;
+        default:
+          break;
       }
-    } catch (e) {
-      Fluttertoast.showToast(
-        msg: 'Error',
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.BOTTOM,
-        backgroundColor: Colors.red,
-        textColor: Colors.white,
-      );
 
-      print(e);
+      _applyFilterByName(filterName);
     }
+    print('Applied filters: $appliedFilters');
   }
-
-
 
   Future<ui.Image?> _captureFilteredImage() async {
     try {
       RenderRepaintBoundary boundary =
       _boundaryKey.currentContext!.findRenderObject() as RenderRepaintBoundary;
 
-      // Define the target width and height
       final targetWidth = 700;
       final targetHeight = 700;
+      final pixelRatio =
+      (targetWidth / boundary.size.width).clamp(1.0, double.infinity);
 
-      // Calculate the pixel ratio required to achieve the target resolution
-      final pixelRatio = (targetWidth / boundary.size.width).clamp(1.0, double.infinity);
-
-      // Capture the image at the desired resolution
       ui.Image? image = await boundary.toImage(pixelRatio: pixelRatio);
 
       return image;
@@ -442,8 +353,6 @@ class _AdjustmentScreenState extends State<AdjustmentScreen> {
       return null;
     }
   }
-
-
 
   ColorFilter _generateColorFilter(double brightness) {
     return ColorFilter.matrix([
@@ -540,7 +449,7 @@ class _AdjustmentScreenState extends State<AdjustmentScreen> {
       0,
       0,
       0,
-      blurValue * blurValue.toDouble(), // Adjust the last value to control the blur strength
+      blurValue * blurValue.toDouble(),
       0,
     ]);
   }
@@ -644,5 +553,4 @@ class _AdjustmentScreenState extends State<AdjustmentScreen> {
       0,
     ]);
   }
-
 }
