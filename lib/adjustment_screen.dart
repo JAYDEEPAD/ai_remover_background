@@ -169,11 +169,18 @@ class _AdjustmentScreenState extends State<AdjustmentScreen> {
                         children: [
                           Slider(
                             value: _sliderValue,
-                            min: 0.0,
-                            max: 1.0,
+                            min: -100,
+                            max: 100,
                             onChanged: _updateSliderValue,
                           ),
                           SizedBox(height: 20),
+                          Text(
+                            'Slider Value: ${_sliderValue.toStringAsFixed(1)}',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                         ],
                       ),
                   ],
