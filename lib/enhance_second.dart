@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'dart:ui';
 import 'package:ai_remover_background/download.dart';
+import 'package:ai_remover_background/filtersecond.dart';
 import 'package:ai_remover_background/filtter.dart';
 import 'package:ai_remover_background/profile_page.dart';
 import 'package:ai_remover_background/screen/Filters.dart';

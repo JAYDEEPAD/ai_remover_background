@@ -58,6 +58,7 @@ dependencies:
   upi_india: ^3.0.1
   flutter_stripe: ^10.1.1
   syncfusion_flutter_sliders: ^25.1.38
+  #image_editor_plus: ^1.0.5
 
 dev_dependencies:
   flutter_test:
