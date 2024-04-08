@@ -4,6 +4,7 @@ import 'dart:ui';
 import 'package:ai_remover_background/download.dart';
 import 'package:ai_remover_background/filtersecond.dart';
 import 'package:ai_remover_background/filtter.dart';
+import 'package:ai_remover_background/onescreen.dart';
 import 'package:ai_remover_background/profile_page.dart';
 import 'package:ai_remover_background/screen/Filters.dart';
 import 'package:ai_remover_background/second_home.dart';
@@ -1240,6 +1241,15 @@ class _EnhanceState extends State<Enhance> {
                           ),
                         ),
                       ),
+
+                      SizedBox(height: 10,),
+                      Center(
+                        child: ElevatedButton(onPressed: (){
+                          Navigator.push(context, MaterialPageRoute(builder: (context)=> CropImageScreen()));
+
+                        }, child: Text("Go To One Screen")),
+                      )
+
                     ],
                   ),
                 ),

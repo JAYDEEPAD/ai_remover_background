@@ -90,7 +90,7 @@ class _AdjustmentScreenState extends State<AdjustmentScreen> {
       context,
       MaterialPageRoute(
         builder: (context) => FilterScreen(
-          imageFile: widget.imageFile,
+          imageFile: widget.orignalimageFile,
           filteredImage: _filteredImage,
         ),
       ),

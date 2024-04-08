@@ -336,7 +336,7 @@ class _FilterScreenState extends State<FilterScreen> {
       Scaffold(
       /*appBar: AppBar(
         centerTitle: true,
-        backgroundColor: Colors.deepPurple[200],
+         backgroundColor: Colors.deepPurple[200],
         title: Text("Edit Photo",style: TextStyle(fontWeight: FontWeight.bold),
         ),
         leading: Row(
@@ -385,7 +385,20 @@ class _FilterScreenState extends State<FilterScreen> {
         child: Column(
           children: [
             SizedBox(height: 50,),
-            Padding(
+
+            ClipRRect(
+              borderRadius: BorderRadius.circular(20),
+              child: Container(
+                height: 450,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: widget.filteredImage != null
+                    ? Image.file(widget.filteredImage! as File, fit: BoxFit.cover)
+                    : Image.file(widget.imageFile, fit: BoxFit.cover),
+              ),
+            ),
+            /*Padding(
               padding: const EdgeInsets.only(left: 15, right: 15),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(20),
@@ -394,13 +407,13 @@ class _FilterScreenState extends State<FilterScreen> {
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(20),
                   ),
-                  child: widget.filteredImage != null && widget.filteredImage is File
+                  child: widget.filteredImage != null
                       ? Image.file(widget.filteredImage as File, fit: BoxFit.cover)
                       : Image.file(widget.imageFile, fit: BoxFit.cover),
                 ),
               ),
             ),
-
+*/
             /*Padding(
               padding: const EdgeInsets.only(left: 15, right: 15),
               child: ClipRRect(
