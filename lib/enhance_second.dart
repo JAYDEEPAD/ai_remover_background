@@ -4,6 +4,7 @@ import 'dart:ui';
 import 'package:ai_remover_background/download.dart';
 import 'package:ai_remover_background/filtersecond.dart';
 import 'package:ai_remover_background/filtter.dart';
+import 'package:ai_remover_background/newapi_screen.dart';
 import 'package:ai_remover_background/onescreen.dart';
 import 'package:ai_remover_background/profile_page.dart';
 import 'package:ai_remover_background/screen/Filters.dart';
@@ -1248,6 +1249,14 @@ class _EnhanceState extends State<Enhance> {
                           Navigator.push(context, MaterialPageRoute(builder: (context)=> CropImageScreen()));
 
                         }, child: Text("Go To One Screen")),
+                      ),
+
+                      SizedBox(height: 10,),
+                      Center(
+                        child: ElevatedButton(onPressed: (){
+                          Navigator.push(context, MaterialPageRoute(builder: (context)=> NewApiScreen()));
+
+                        }, child: Text("Go To BackGround Screen")),
                       )
 
                     ],
