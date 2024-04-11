@@ -22,7 +22,6 @@ class _SecondHomeState extends State<SecondHome> {
   // Method to call the API for removing background
   Future<void> removeBackground() async {
     final apiUrl = 'https://bgremove.dohost.in/remove-bg';
-
     try {
       // Sending a POST request to the API with image URL
       final response = await http.post(
