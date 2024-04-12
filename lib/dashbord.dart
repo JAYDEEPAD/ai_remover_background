@@ -1,3 +1,4 @@
+/*
 import 'dart:io';
 import 'package:ai_remover_background/screen/Filters.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -383,7 +384,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
 
 
-                          /*Padding(
+                          */
+/*Padding(
                             padding: const EdgeInsets.only(left: 13, right: 13),
                             child: SizedBox(
                               height: 100,
@@ -420,9 +422,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
                               ),
                             ),
-                          ),*/
+                          ),*//*
 
-                          /*Padding(
+
+                          */
+/*Padding(
                             padding: const EdgeInsets.only(left: 13,right: 13),
                             child: SizedBox(
 
@@ -448,12 +452,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   }
                               ),
                             ),
-                          ),*/
+                          ),*//*
 
 
 
 
-                          /*Padding(
+
+                          */
+/*Padding(
                             padding: const EdgeInsets.only(left: 13,right: 13),
                             child: SizedBox(
                               height: 100,
@@ -484,7 +490,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                         ),
                                       ),
                                     );}
-                                        });  *//*Padding(
+                                        });  *//*
+*/
+/*Padding(
                                       padding: const EdgeInsets.all(8.0),
                                       child: Container(
                                         height: 50,
@@ -498,10 +506,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                         ),
                                       ),
                                     );*//*
+*/
+/*
                                   }
                               ),
                             ),
-                          ),*/
+                          ),*//*
+
                           SizedBox(
                             height: 10,
                           ),
@@ -940,3 +951,4 @@ class _DashboardScreenState extends State<DashboardScreen> {
       );
   }
 }
+*/

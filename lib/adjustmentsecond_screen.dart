@@ -1,3 +1,4 @@
+/*
 import 'dart:io';
 import 'dart:async';
 import 'dart:typed_data';
@@ -415,3 +416,4 @@ class _AdjustmentSecondScreenState extends State<AdjustmentSecondScreen> {
     ]);
   }
 }
+*/

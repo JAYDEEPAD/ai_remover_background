@@ -1,3 +1,4 @@
+/*
 // ignore_for_file: prefer_interpolation_to_compose_strings, avoid_print, library_private_types_in_public_api
 
 import 'dart:convert';
@@ -66,12 +67,16 @@ class _ScriptPaymentScreenState extends State<ScriptPaymentScreen> {
               setupIntentClientSecret: 'Your Secret Key',
               paymentIntentClientSecret:
               paymentIntentData!['client_secret'],
-             /* applePay: true,
+             */
+/* applePay: true,
               googlePay: true,
-             */ //testEnv: true,
+             *//*
+ //testEnv: true,
               customFlow: true,
               style: ThemeMode.dark,
-               /*merchantCountryCode: 'India',*/
+               */
+/*merchantCountryCode: 'India',*//*
+
               merchantDisplayName: 'Jaydeep'))
           .then((value) {});
 
@@ -86,10 +91,12 @@ class _ScriptPaymentScreenState extends State<ScriptPaymentScreen> {
     try {
       await Stripe.instance
           .presentPaymentSheet(
-          /*parameters: PresentPaymentSheetParameters(
+          */
+/*parameters: PresentPaymentSheetParameters(
          clientSecret: paymentIntentData!['client_secret'],
          confirmPayment: true,
-         )*/
+         )*//*
+
       )
           .then((newValue) {
         print('payment intent' + paymentIntentData!['id'].toString());
@@ -144,4 +151,4 @@ class _ScriptPaymentScreenState extends State<ScriptPaymentScreen> {
     final a = (int.parse(amount)) * 100;
     return a.toString();
   }
-}
+}*/

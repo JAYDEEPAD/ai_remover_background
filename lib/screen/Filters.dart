@@ -1,241 +1,323 @@
 import 'dart:io';
-import 'package:image/image.dart' as img;
-import 'package:ai_remover_background/Imagehelper.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
-import 'package:firebase_storage/firebase_storage.dart';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:image_gallery_saver/image_gallery_saver.dart';
-import 'package:photofilters/photofilters.dart';
-import 'package:photofilters/widgets/photo_filter.dart';
+import 'package:image/image.dart' as img;
 
 void main() {
-  runApp(MaterialApp(
-    debugShowCheckedModeBanner: false,
-  ));
+  runApp(MyApp());
 }
 
-class Filters extends StatefulWidget {
-  File imageFile;
-  Filters({Key? key, required this.imageFile}) : super(key: key);
-
+class MyApp extends StatelessWidget {
   @override
-  State<Filters> createState() => _FiltersState();
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Image Filters',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: ImageFilterPage(),
+    );
+  }
 }
 
-class _FiltersState extends State<Filters> {
+class ImageFilterPage extends StatefulWidget {
+  @override
+  _ImageFilterPageState createState() => _ImageFilterPageState();
+}
 
-  Future<void> _saveImageToGallery() async {
-    try {
-      final success = await ImageGallerySaver.saveFile(widget.imageFile.path);
-      print(success);
-      if (success) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Image saved to gallery')),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to save image')),
-        );
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to save image: $e')),
-      );
-    }
+class _ImageFilterPageState extends State<ImageFilterPage> {
+  File? _imageFile;
+  img.Image? _filteredImage;
 
-    try {
-      final user = FirebaseAuth.instance.currentUser;
-      print(user);
-      if (user == null) {
-        throw Exception('User not authenticated');
-      }
+  Future<void> _pickImage(ImageSource source) async {
+    final pickedImage = await ImagePicker().pickImage(source: source);
+    if (pickedImage == null) return;
 
-      final DateTime uploadTime = DateTime.now(); // Get current DateTime
-      print(uploadTime);
-      final firebase_storage.Reference ref = firebase_storage.FirebaseStorage.instance
-          .ref()
-          .child('images')
-          .child('image_${uploadTime.microsecondsSinceEpoch}.jpg'); // Use microseconds for unique filenames
-      print(ref.getDownloadURL());
-      final metadata = firebase_storage.SettableMetadata(
-          contentType: 'image/jpeg',
-          customMetadata: {'picked-file-path': widget.imageFile.path});
-
-      final UploadTask uploadTask = ref.putFile(
-        widget.imageFile,
-        metadata,
-      );
-      await uploadTask.whenComplete(() => print('Image uploaded to Firebase'));
-      final String downloadURL = await ref.getDownloadURL();
-      print(downloadURL);
-      final userId = user.uid;
-      print(userId);// Replace 'user_id' with the actual user ID
-
-      // Create a subcollection 'images' within the user's document
-      final userRef = FirebaseFirestore.instance.collection('users').doc(userId).collection('images');
-
-      // Add a new document for the uploaded image with imageURL and uploadTime fields
-      await userRef.add({
-        'imageURL': downloadURL,
-        'uploadTime': uploadTime.toIso8601String(), // Store upload time as ISO 8601 string
-      });
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to upload image: $e')),
-      );
-    }
-
+    setState(() {
+      _imageFile = File(pickedImage.path);
+      _filteredImage = null; // Reset filtered image
+    });
   }
 
-  /*Future<void> _applyFilters(BuildContext context) async {
-    if (widget.imageFile != null) {
-      File? filteredImage = await Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) async => PhotoFilterSelector(
-              title: const Text("Photo Filter Example"),
-              image: img.decodeImage( await widget.imageFile.readAsBytes())!,
-          filters: presetFiltersList,
-          filename: widget.imageFile.path,
-          loader: const Center(child: CircularProgressIndicator()),
-          fit: BoxFit.contain,
-        ),
-      ),
-    );
-    if (filteredImage != null) {
-    setState(() {
-    widget.imageFile = filteredImage;
-    });
-    }
+  Widget _buildImage() {
+    if (_imageFile == null) {
+      return Text('No image selected.');
+    } else if (_filteredImage == null) {
+      return Image.file(_imageFile!);
     } else {
-    ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(
-    content: Text('No image selected.'),
-    duration: const Duration(seconds: 2),
-    ),
-    );
+      return Image.memory(Uint8List.fromList(img.encodePng(_filteredImage!)));
     }
-  }*/
+  }
 
+  void _applyFilter(FilterType filterType) {
+    if (_imageFile == null) return;
+
+    final image = img.decodeImage(_imageFile!.readAsBytesSync());
+    if (image == null) return;
+
+    setState(() {
+      _filteredImage = _applyFilterType(image, filterType);
+    });
+  }
+
+  img.Image _applyFilterType(img.Image image, FilterType filterType) {
+    switch (filterType) {
+      case FilterType.vivid:
+        return _applyVividFilter(image);
+      case FilterType.vividWarm:
+        return _applyVividWarmFilter(image);
+      case FilterType.vividCool:
+        return _applyVividCoolFilter(image);
+      case FilterType.dramatic:
+        return _applyDramaticFilter(image);
+      case FilterType.dramaticWarm:
+        return _applyDramaticWarmFilter(image);
+      case FilterType.dramaticCool:
+        return _applyDramaticCoolFilter(image);
+      case FilterType.mono:
+        return _applyMonoFilter(image);
+      case FilterType.silvertone:
+        return _applySilvertoneFilter(image);
+      case FilterType.noir:
+        return _applyNoirFilter(image);
+    }
+  }
+
+  img.Image _applyVividFilter(img.Image image) {
+    final double saturationFactor = 1.5;
+    final double brightnessFactor = 1.2;
+
+    img.adjustColor(image, saturation: saturationFactor);
+    img.adjustColor(image, brightness: brightnessFactor);
+
+
+    // Implement vivid filter logic
+    return image;
+  }
+
+  img.Image _applyVividWarmFilter(img.Image image) {
+    final double redFactor = 1.2;
+    final double blueFactor = 0.8;
+
+    /*for (var y = 0; y < image.height; y++) {
+      for (var x = 0; x < image.width; x++) {
+        final pixel = image.getPixel(x, y);
+        final r = (img.getRed(pixel)! * redFactor).clamp(0, 255).toInt();
+        final g = img.getGreen(pixel)!;
+        final b = (img.getBlue(pixel)! * blueFactor).clamp(0, 255).toInt();
+
+        image.setPixel(x, y, img.Color(r, g, b));
+      }
+    }
+*/
+    // Implement vivid warm filter logic
+    return image;
+  }
+
+  img.Image _applyVividCoolFilter(img.Image image) {
+    final double redFactor = 1.2;
+    final double blueFactor = 0.8;
+
+    /*for (var y = 0; y < image.height; y++) {
+      for (var x = 0; x < image.width; x++) {
+        final pixel = image.getPixel(x, y);
+
+        final r = (img.getRed(pixel)! * redFactor).clamp(0, 255).toInt();
+        final g = img.getGreen(pixel)!;
+        final b = (img.getBlue(pixel)! * blueFactor).clamp(0, 255).toInt();
+
+        // Set the adjusted pixel values
+        image.setPixel(x, y, img.Color(r, g, b));
+      }
+    }
+*/
+    // Implement vivid cool filter logic
+    return image;
+  }
+
+  img.Image _applyDramaticFilter(img.Image image) {
+    final double contrastFactor = 1.5;
+
+    img.adjustColor(image, contrast: contrastFactor);
+
+
+    // Implement dramatic filter logic
+    return image;
+  }
+
+  img.Image _applyDramaticWarmFilter(img.Image image) {
+    final double redFactor = 1.5;
+
+    /*for (var y = 0; y < image.height; y++) {
+      for (var x = 0; x < image.width; x++) {
+        final pixel = image.getPixel(x, y);
+        final r = (img.getRed(pixel)! * redFactor).clamp(0, 255).toInt();
+        final g = img.getGreen(pixel)!;
+        final b = img.getBlue(pixel)!;
+
+        image.setPixel(x, y, img.Color(r, g, b));
+      }
+    }
+*/
+
+    // Implement dramatic warm filter logic
+    return image;
+  }
+
+  img.Image _applyDramaticCoolFilter(img.Image image) {
+    final double blueFactor = 1.5;
+
+    /*for (var y = 0; y < image.height; y++) {
+      for (var x = 0; x < image.width; x++) {
+        final pixel = image.getPixel(x, y);
+        final r = img.getRed(pixel)!;
+        final g = img.getGreen(pixel)!;
+        final b = (img.getBlue(pixel)! * blueFactor).clamp(0, 255).toInt();
+
+        image.setPixel(x, y, img.Color(r, g, b));
+      }
+    }
+*/
+
+    // Implement dramatic cool filter logic
+    return image;
+  }
+
+  img.Image _applyMonoFilter(img.Image image) {
+
+    img.grayscale(image);
+    // Implement mono filter logic
+    return image;
+  }
+
+  img.Image _applySilvertoneFilter(img.Image image) {
+    final double contrastFactor = 1.2;
+
+    img.adjustColor(image, contrast: contrastFactor);
+    img.grayscale(image);
+
+
+    // Implement silvertone filter logic
+    return image;
+  }
+
+  img.Image _applyNoirFilter(img.Image image) {
+    img.grayscale(image);
+
+    final double contrastFactor = 1.5;
+
+    img.adjustColor(image, contrast: contrastFactor);
+
+    // Implement noir filter logic
+    return image;
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        centerTitle: true,
-        title: Text("Edit Photo"),
+        title: Text('Image Filters'),
       ),
-      body: Column(
-        children: [
-          Center(
-            child: Container(
-                height: MediaQuery.of(context).size.height * 0.40,
-                width: MediaQuery.of(context).size.width * 0.50,
-                child: Center(child: Image.file(widget.imageFile, height: 320, width: 320))),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              SizedBox(height: MediaQuery.of(context).size.height * 0.4),
-              Center(
-                child: Column(
-                  children: [
-                    Container(
-                      height: 50,
-                      width: 50,
-                      decoration: BoxDecoration(
-                        color: Colors.black,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: IconButton(
-                        onPressed: () async {
-                          if (widget.imageFile != null) {
-                            File? cropped = await ImageHelper.cropImage(widget.imageFile);
-                            if (cropped != null) {
-                              setState(() {
-                                widget.imageFile = cropped;
-                              });
-                            }
-                          }
-                        },
-                        icon: Icon(Icons.crop, color: Colors.white),
-                      ),
-                    ),
-                    Text("Crop", style: TextStyle(color: Colors.black, fontSize: 20)),
-                  ],
-                ),
+      body: SingleChildScrollView(
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              _buildImage(),
+              SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () => _pickImage(ImageSource.gallery),
+                child: Text('Select Image'),
               ),
-              // Add adjustment and filters widgets here
-              Center(
-                child: Column(
-                  children: [
-                    Container(
-                      height: 50,
-                      width: 50,
-                      decoration: BoxDecoration(
-                        color: Colors.black,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: IconButton(
-                        onPressed: () {
-                          // Add adjustment functionality here
-                        },
-                        icon: Icon(Icons.adjust, color: Colors.white),
-                      ),
-                    ),
-                    Text("Adjustment", style: TextStyle(color: Colors.black, fontSize: 20)),
-                  ],
-                ),
+              SizedBox(height: 10),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  FilterButton(
+                    text: 'Vivid',
+                    onPressed: () => _applyFilter(FilterType.vivid),
+                  ),
+                  FilterButton(
+                    text: 'Vivid Warm',
+                    onPressed: () => _applyFilter(FilterType.vividWarm),
+                  ),
+                  FilterButton(
+                    text: 'Vivid Cool',
+                    onPressed: () => _applyFilter(FilterType.vividCool),
+                  ),
+                ],
               ),
-              Center(
-                child: Column(
-                  children: [
-                    Container(
-                      height: 50,
-                      width: 50,
-                      decoration: BoxDecoration(
-                        color: Colors.black,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: IconButton(
-                        onPressed: () {
-                         /* _applyFilters(context);*/
-                          // Add filters functionality here
-                        },
-                        icon: Icon(Icons.filter, color: Colors.white),
-                      ),
-                    ),
-                    Text("Filters", style: TextStyle(color: Colors.black, fontSize: 20)),
-                  ],
-                ),
+              SizedBox(height: 10),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  FilterButton(
+                    text: 'Dramatic',
+                    onPressed: () => _applyFilter(FilterType.dramatic),
+                  ),
+                  FilterButton(
+                    text: 'Dramatic Warm',
+                    onPressed: () => _applyFilter(FilterType.dramaticWarm),
+                  ),
+                  FilterButton(
+                    text: 'Dramatic Cool',
+                    onPressed: () => _applyFilter(FilterType.dramaticCool),
+                  ),
+                ],
               ),
-              Center(
-                child: Column(
-                  children: [
-                    Container(
-                      height: 50,
-                      width: 50,
-                      decoration: BoxDecoration(
-                        color: Colors.black,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: IconButton(
-                        onPressed: _saveImageToGallery,
-                        icon: Icon(Icons.save, color: Colors.white),
-                      ),
-                    ),
-                    Text("Save", style: TextStyle(color: Colors.black, fontSize: 20)),
-                  ],
-                ),
+              SizedBox(height: 10),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  FilterButton(
+                    text: 'Mono',
+                    onPressed: () => _applyFilter(FilterType.mono),
+                  ),
+                  FilterButton(
+                    text: 'Silvertone',
+                    onPressed: () => _applyFilter(FilterType.silvertone),
+                  ),
+                  FilterButton(
+                    text: 'Noir',
+                    onPressed: () => _applyFilter(FilterType.noir),
+                  ),
+                ],
               ),
             ],
           ),
-        ],
+        ),
       ),
+    );
+  }
+}
+
+enum FilterType {
+  vivid,
+  vividWarm,
+  vividCool,
+  dramatic,
+  dramaticWarm,
+  dramaticCool,
+  mono,
+  silvertone,
+  noir,
+}
+
+class FilterButton extends StatelessWidget {
+  final String text;
+  final VoidCallback onPressed;
+
+  const FilterButton({
+    required this.text,
+    required this.onPressed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      onPressed: onPressed,
+      child: Text(text),
     );
   }
 }

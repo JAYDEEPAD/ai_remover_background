@@ -1,563 +1,798 @@
-import 'dart:io';
-import 'dart:ui' as ui;
-import 'dart:async';
-import 'package:ai_remover_background/filtter.dart';
+import 'dart:typed_data';
+
+
+import 'package:ai_remover_background/home_screen.dart';
+import 'package:ai_remover_background/provider.dart';
+import 'package:colorfilter_generator/addons.dart';
+import 'package:colorfilter_generator/colorfilter_generator.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
+import 'package:provider/provider.dart';
+import 'package:screenshot/screenshot.dart';
+import 'package:syncfusion_flutter_sliders/sliders.dart';
 
-class AdjustmentScreen extends StatefulWidget {
-  final File orignalimageFile;
-  final File imageFile;
-  final ui.Image? filteredImage;
 
-  AdjustmentScreen({
-    Key? key,
-    required this.orignalimageFile,
-    required this.imageFile,
-    this.filteredImage,
-  }) : super(key: key);
+class Adjustment_Screen extends StatefulWidget {
+  const Adjustment_Screen({super.key});
 
   @override
-  _AdjustmentScreenState createState() => _AdjustmentScreenState();
+  State<Adjustment_Screen> createState() => _Adjustment_ScreenState();
 }
 
-class _AdjustmentScreenState extends State<AdjustmentScreen> {
-  ColorFilter? _selectedFilter;
-  double _sliderValue = 0.5;
-  String _selectedFilterName = '';
-  GlobalKey _boundaryKey = GlobalKey();
-  ui.Image? _filteredImage;
+// class _Adjustment_ScreenState extends State<Adjustment_Screen> {
+//   late AppImageProvider appImageProvider;
+//   late ColorFilterGenerator adj;
+//   ScreenshotController screenshotController = ScreenshotController();
+//
+//    double brightness = 0;
+//   double contrast = 0;
+//   double saturation = 0;
+//   double hue = 0;
+//   double sepia = 0;
+//
+//   bool showbrightness = true;
+//   bool showcontrast = false;
+//   bool showsaturation = false;
+//   bool showhue = false;
+//   bool showsepia = false;
+//
+//   String Selected = 'brightness';
+//   adjust({ b ,c,s,h,se}){
+//    adj = ColorFilterGenerator(name: 'Adjust',
+//        filters:[
+//          ColorFilterAddons.brightness(b ?? brightness),
+//          ColorFilterAddons.contrast(c ?? contrast),
+//          ColorFilterAddons.saturation(s ??saturation),
+//          ColorFilterAddons.hue(h ?? hue),
+//          ColorFilterAddons.sepia(se ?? sepia),
+//
+//    ]);
+//   }
+//   showSlider({ b ,c,s,h,se}){
+//     setState(() {
+//     showbrightness=  b != null ? true : false;
+//     showcontrast= c != null ? true : false;
+//     showsaturation= s != null ? true : false;
+//     showhue= h != null ? true : false;
+//     showsepia= se != null ? true : false;
+//     });
+// }
+//   @override
+//   void initState() {
+//     super.initState();
+//     adjust();
+//     appImageProvider = Provider.of<AppImageProvider>(context, listen: false);
+//   }
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       backgroundColor: Color(0xff212121),
+//       appBar: AppBar(
+//         backgroundColor: Colors.black,
+//         title: Text("Adjustment Screen",style: TextStyle(color: Colors.white),),
+//         centerTitle: true,
+//         leading: IconButton(
+//             onPressed: (){
+//               Navigator.push(context, MaterialPageRoute(builder: (context)=>HomeScreen()));
+//             },
+//             icon: Icon(Icons.close,color: Colors.white,)),
+//         actions: [
+//           IconButton(
+//               onPressed: () async {
+//                 Uint8List? byte = await screenshotController.capture();
+//                 appImageProvider.changeImage(byte!);
+//                 if (!mounted) return;
+//                 Navigator.of(context).pop();
+//               }, icon: Icon(Icons.check,color: Colors.white,)),
+//         ],
+//       ),
+//       body:
+//       Stack(
+//         children: [
+//           Center(
+//             child: Consumer<AppImageProvider>(
+//               builder: (BuildContext context, value, Widget? child) {
+//                 if (value.currentImage != null) {
+//                   return Screenshot(
+//                     controller: screenshotController,
+//                     child: ColorFiltered(
+//                       colorFilter: ColorFilter.matrix(
+//                         adj.matrix
+//                       ),
+//                         child: Image.memory(value.currentImage!),
+//                     ),
+//                   );
+//                 }
+//                 // If current image is null, show a progress indicator
+//                 return Center(
+//                   child: CircularProgressIndicator(),
+//                 );
+//               },
+//             ),
+//           ),
+//           Align(
+//             alignment: Alignment.bottomCenter,
+//             child: Row(
+//               children: [
+//                 Expanded(
+//                   child: Column(
+//                     mainAxisSize: MainAxisSize.min,
+//                     children: [
+//                      Visibility(
+//                        visible:showbrightness,
+//                        child: slider(
+//                          value:brightness,
+//                          onChanged: (value){
+//                           setState(() {
+//                             brightness = value;
+//                             adjust(b: brightness);
+//                           });
+//                          },
+//                        ),
+//                      ),
+//                       Visibility(
+//                         visible:showcontrast,
+//                         child: slider(
+//                           value:contrast,
+//                           onChanged: (value){
+//                             setState(() {
+//                               contrast = value;
+//                               adjust(c: contrast);
+//                             });
+//                           },
+//                         ),
+//                       ),
+//                       Visibility(
+//                         visible:showsaturation,
+//                         child: slider(
+//                           value:saturation,
+//                           onChanged: (value){
+//                             setState(() {
+//                               saturation = value;
+//                               adjust(s: saturation);
+//                             });
+//                           },
+//                         ),
+//                       ),
+//                       Visibility(
+//                         visible:showhue,
+//                         child: slider(
+//                           value:hue,
+//                           onChanged: (value){
+//                             setState(() {
+//                               hue = value;
+//                               adjust(h: hue);
+//                             });
+//                           },
+//                         ),
+//                       ),
+//                       Visibility(
+//                         visible:showsepia,
+//                         child: slider(
+//                           value:sepia,
+//                           onChanged: (value){
+//                             setState(() {
+//                               sepia = value;
+//                               adjust(se: sepia);
+//                             });
+//                           },
+//                         ),
+//                       ),
+//
+//                     ],
+//                   ),
+//                 ),
+//                 TextButton(onPressed: (){
+//                   setState(() {
+//                     brightness = 0;
+//                     contrast = 0;
+//                     saturation = 0;
+//                     hue = 0;
+//                     sepia = 0;
+//                     adjust(
+//                         b: brightness,
+//                       c: contrast,
+//                       s: saturation,
+//                       h: hue,
+//                       se: sepia,
+//
+//                     );
+//                   });
+//                 }, child: Text("Reset"),),
+//
+//               ],
+//             ),
+//           )
+//         ],
+//       ),
+//       bottomNavigationBar: Container(
+//         height: 58,
+//         width: double.infinity,
+//         color: Colors.black,
+//         child: SafeArea(
+//           child: SingleChildScrollView(
+//             scrollDirection: Axis.horizontal,
+//             child: Row(
+//               children: [
+//                 SizedBox(
+//                   width: 20,
+//                 ),
+//                 _BottomButton(
+//                     Icons.brightness_4,
+//                     'Brightness',
+//                     color: showbrightness ? Colors.blue : null,
+//                     onPressed:(){
+//                       Selected = 'Brightness';
+//                      showSlider(b: true);
+//                     }
+//                 ),
+//                 _BottomButton(
+//                     Icons.contrast,
+//                     'Contrast',
+//                     color: showcontrast ? Colors.blue : null,
+//                     onPressed:(){
+//                       Selected = 'Contrast';
+//                       showSlider(c: true);
+//                     }
+//                 ),
+//                 _BottomButton(
+//                     Icons.water_drop ,
+//                     'Saturation',
+//                     color: showsaturation ? Colors.blue : null,
+//                     onPressed:(){
+//                       Selected = 'Saturation';
+//                       showSlider(s: true);
+//                     }
+//                 ),
+//                 _BottomButton(
+//                     Icons.filter_tilt_shift,
+//                     'Hue',
+//                     color: showhue ? Colors.blue : null,
+//                     onPressed:(){
+//                       Selected = 'Hue';
+//                       showSlider(h: true);
+//                     }
+//                 ),
+//                 _BottomButton(
+//                     Icons.motion_photos_on,
+//                     'Sepia',
+//                     color: showsepia ? Colors.blue : null,
+//                     onPressed:(){
+//                       Selected = 'Sepia';
+//                       showSlider(se: true);
+//                     }
+//                 ),
+//               ],
+//             ),
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+//   Widget _BottomButton(IconData icon , String title ,{Color? color,required onPressed}){
+//     return  InkWell(
+//       onTap: onPressed,
+//       child: Padding(
+//         padding: const EdgeInsets.symmetric(horizontal: 20,vertical: 5),
+//         child: Column(
+//           children: [
+//             Icon(icon,color: color ?? Colors.white,),
+//             Text(title,style: TextStyle(color: color ?? Colors.white70),),
+//
+//           ],
+//         ),
+//       ),
+//     );
+//   }
+//   Widget slider({label, value, onChanged}){
+//     return  Slider(
+//       label: '${value.toStringAsFixed(2)}',
+//         value: value,
+//         max: 1,
+//         min: -0.9,
+//         onChanged: onChanged
+//     );
+//   }
+// }
+
+class _Adjustment_ScreenState extends State<Adjustment_Screen> {
+  late AppImageProvider appImageProvider;
+  late ColorFilterGenerator adj;
+  ScreenshotController screenshotController = ScreenshotController();
+
+  double brightness = 0;
+  double contrast = 0;
+  double saturation = 0;
+  double hue = 0;
+  double sepia = 0;
+  double auto = 0;
+  bool showauto = false;
+  bool showbrightness = true;
+  bool showcontrast = false;
+  bool showsaturation = false;
+  bool showhue = false;
+  bool showsepia = false;
+
+  String Selected = 'brightness';
+
+  // Method to calculate auto-adjusted brightness
+  double calculateAutoBrightness(Uint8List imageData) {
+    // Initialize total brightness
+    int totalBrightness = 0;
+
+    // Calculate total brightness by summing up pixel values
+    for (int i = 0; i < imageData.length; i += 4) {
+      // Extract RGB values from the image data
+      int r = imageData[i];
+      int g = imageData[i + 1];
+      int b = imageData[i + 2];
+
+      // Convert RGB to brightness value (YUV formula: 0.299R + 0.587G + 0.114B)
+      int brightness = (0.299 * r + 0.587 * g + 0.114 * b).round();
+
+      // Add brightness to the total
+      totalBrightness += brightness;
+    }
+
+    // Calculate average brightness
+    double averageBrightness = totalBrightness / (imageData.length ~/ 4);
+
+    // Calculate the adjustment value based on the difference from the desired average brightness
+    double adjustment = 0.5 - averageBrightness / 255.0; // 0.5 is the desired average brightness
+
+    return adjustment;
+  }
+
+  double calculateAutoContrast(Uint8List imageData) {
+    // Calculate the average pixel intensity
+    double totalIntensity = 0;
+    for (int i = 0; i < imageData.length; i += 4) {
+      totalIntensity += (imageData[i] + imageData[i + 1] + imageData[i + 2]) / 3;
+    }
+    double averageIntensity = totalIntensity / (imageData.length ~/ 4);
+
+    // Calculate the adjustment based on the difference from the average intensity
+    double adjustment = (128 - averageIntensity) / 255.0;
+
+    return adjustment;
+  }
+
+  double calculateAutoSaturation(Uint8List imageData) {
+    // Convert RGB to HSL (Hue, Saturation, Lightness)
+    List<double> hsl = [0, 0, 0];
+    for (int i = 0; i < imageData.length; i += 4) {
+      double r = imageData[i] / 255;
+      double g = imageData[i + 1] / 255;
+      double b = imageData[i + 2] / 255;
+
+      double cmax = [r, g, b].reduce((value, element) => value > element ? value : element);
+      double cmin = [r, g, b].reduce((value, element) => value < element ? value : element);
+      double delta = cmax - cmin;
+
+      double h = 0;
+      if (delta != 0) {
+        if (cmax == r) {
+          h = 60 * (((g - b) / delta) % 6);
+        } else if (cmax == g) {
+          h = 60 * (((b - r) / delta) + 2);
+        } else if (cmax == b) {
+          h = 60 * (((r - g) / delta) + 4);
+        }
+      }
+
+      hsl[0] += h;
+      hsl[1] += delta / (1 - (cmax + cmin));
+      hsl[2] += (cmax + cmin) / 2;
+    }
+
+    hsl[0] /= (imageData.length ~/ 4);
+    hsl[1] /= (imageData.length ~/ 4);
+    hsl[2] /= (imageData.length ~/ 4);
+
+    // Calculate the adjustment based on the average saturation
+    double adjustment = hsl[1] - 0.5;
+
+    return adjustment;
+  }
+
+  double calculateAutoHue(Uint8List imageData) {
+    // Convert RGB to HSL (Hue, Saturation, Lightness)
+    List<double> hsl = [0, 0, 0];
+    for (int i = 0; i < imageData.length; i += 4) {
+      double r = imageData[i] / 255;
+      double g = imageData[i + 1] / 255;
+      double b = imageData[i + 2] / 255;
+
+      double cmax = [r, g, b].reduce((value, element) => value > element ? value : element);
+      double cmin = [r, g, b].reduce((value, element) => value < element ? value : element);
+      double delta = cmax - cmin;
+
+      double h = 0;
+      if (delta != 0) {
+        if (cmax == r) {
+          h = 60 * (((g - b) / delta) % 6);
+        } else if (cmax == g) {
+          h = 60 * (((b - r) / delta) + 2);
+        } else if (cmax == b) {
+          h = 60 * (((r - g) / delta) + 4);
+        }
+      }
+
+      hsl[0] += h;
+      hsl[1] += delta / (1 - (cmax + cmin));
+      hsl[2] += (cmax + cmin) / 2;
+    }
+
+    hsl[0] /= (imageData.length ~/ 4);
+
+    // Calculate the adjustment based on the average hue
+    double adjustment = (hsl[0] - 180) / 360.0; // Centering around 180° (green)
+
+    return adjustment;
+  }
+
+  double calculateAutoSepia(Uint8List imageData) {
+    // Calculate the average intensity
+    double totalIntensity = 0;
+    for (int i = 0; i < imageData.length; i += 4) {
+      totalIntensity += (imageData[i] + imageData[i + 1] + imageData[i + 2]) / 3;
+    }
+    double averageIntensity = totalIntensity / (imageData.length ~/ 4);
+
+    // Calculate the adjustment based on the average intensity
+    double adjustment = averageIntensity / 255.0;
+
+    return adjustment;
+  }
+
+
+  adjust({a,b, c, s, h, se}) {
+    adj = ColorFilterGenerator(
+        name: 'Adjust',
+        filters: [
+
+          ColorFilterAddons.brightness(b ?? brightness),
+          ColorFilterAddons.contrast(c ?? contrast),
+          ColorFilterAddons.saturation(s ?? saturation),
+          ColorFilterAddons.hue(h ?? hue),
+          ColorFilterAddons.sepia(se ?? sepia),
+          ColorFilterAddons.colorOverlay(5, 5, 5, a ?? auto),
+        ]);
+  }
+
+  showSlider({a,b, c, s, h, se}) {
+    setState(() {
+      showauto = a != null ? true :false;
+      showbrightness = b != null ? true : false;
+      showcontrast = c != null ? true : false;
+      showsaturation = s != null ? true : false;
+      showhue = h != null ? true : false;
+      showsepia = se != null ? true : false;
+    });
+  }
 
   @override
   void initState() {
     super.initState();
-    _filteredImage = widget.filteredImage;
-  }
-
-  List<Map<String, dynamic>> iconDataList = [
-    {"icon": Icons.auto_fix_high, "filterName": 'Auto'},
-    {"icon": Icons.highlight, "filterName": 'Highlight'},
-    {"icon": Icons.brightness_medium, "filterName": 'Brightness'},
-    {"icon": Icons.exposure, "filterName": 'Exposure'},
-    {"icon": Icons.blur_circular, "filterName": 'Blur'},
-    {"icon": Icons.face, "filterName": 'Fade'},
-    {"icon": Icons.colorize, "filterName": 'Saturation'},
-    {"icon": Icons.shutter_speed, "filterName": 'Shadow'},
-    {"icon": Icons.vignette, "filterName": 'Vignette'},
-  ];
-
-  bool _isIconButtonSelected = false;
-
-  void _updateSliderValue(double value) {
-    setState(() {
-      _sliderValue = value;
-      if (_selectedFilter != null) {
-        switch (_selectedFilterName) {
-          case 'Brightness':
-            _selectedFilter = _generateColorFilter(value);
-            break;
-          case 'Exposure':
-            _selectedFilter = _generateExposureFilter(value);
-            break;
-          case 'Fade':
-            _selectedFilter = _generateFadeFilter(value);
-            break;
-          case 'Highlight':
-            _selectedFilter = _generateHighlightFilter(value);
-            break;
-          case 'Saturation':
-            _selectedFilter = _generateSaturationFilter(value);
-            break;
-          case 'Shadow':
-            _selectedFilter = _generateShadowFilter(value);
-            break;
-          case 'Blur':
-            _selectedFilter = _generateBlurFilter(value);
-            break;
-          case 'Vignette':
-            _selectedFilter = _generateVignetteFilter(value);
-            break;
-          default:
-            break;
-        }
-      }
-    });
-  }
-
-  void _navigateToFilterPage(
-      BuildContext context, ui.Image? filteredImage) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => FilterScreen(
-          imageFile: widget.orignalimageFile,
-          filteredImage: _filteredImage,
-        ),
-      ),
-    );
+    adjust();
+    appImageProvider = Provider.of<AppImageProvider>(context, listen: false);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Color(0xff212121),
       appBar: AppBar(
-        title: Text('Image Adjustments'),
+        backgroundColor: Colors.black,
+        title: Text(
+          "Adjustment Screen",
+          style: TextStyle(color: Colors.white),
+        ),
+        centerTitle: true,
+        leading: IconButton(
+            onPressed: () {
+              Navigator.push(
+                  context, MaterialPageRoute(builder: (context) => HomeScreen()));
+            },
+            icon: Icon(Icons.close, color: Colors.white)),
         actions: [
           IconButton(
-            onPressed: () {
-              //_saveImageToGallery(context);
-              _navigateToFilterPage(context, _filteredImage);
-            },
-            icon: Icon(Icons.check, color: Colors.black),
-          )
+              onPressed: () async {
+                Uint8List? byte = await screenshotController.capture();
+                appImageProvider.changeImage(byte!);
+                if (!mounted) return;
+                Navigator.of(context).pop();
+              },
+              icon: Icon(Icons.check, color: Colors.white)),
         ],
       ),
-      body: ListView(
+      body: Stack(
         children: [
           Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Column(
-                  children: [
-                    if (_selectedFilter != null)
-                      RepaintBoundary(
-                        key: _boundaryKey,
-                        child: ColorFiltered(
-                          colorFilter: _selectedFilter!,
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(20),
-                            child: Container(
-                              margin: EdgeInsets.all(20),
-                              height: 400,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: Image.file(
-                                widget.orignalimageFile,
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                          ),
-                        ),
-                      )
-                    else
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(20),
-                        child: Container(
-                          margin: EdgeInsets.all(20),
-                          height: 450,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Image.file(widget.orignalimageFile,
-                              fit: BoxFit.cover),
-                        ),
-                      ),
-                    SizedBox(height: 20),
-                    SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: Row(
-                        children: iconDataList.map((iconData) {
-                          return _buildIconButton(
-                              iconData['icon'], iconData['filterName']);
-                        }).toList(),
-                      ),
+            child: Consumer<AppImageProvider>(
+              builder: (BuildContext context, value, Widget? child) {
+                if (value.currentImage != null) {
+                  return Screenshot(
+                    controller: screenshotController,
+                    child: ColorFiltered(
+                      colorFilter: ColorFilter.matrix(adj.matrix),
+                      child: Image.memory(value.currentImage!),
                     ),
-                    if (_isIconButtonSelected)
-                      Column(
-                        children: [
-                          Slider(
-                            value: _sliderValue,
-                            min: -100,
-                            max: 100,
-                            onChanged: _updateSliderValue,
-                          ),
-                          SizedBox(height: 20),
-                          Text(
-                            'Slider Value: ${_sliderValue.toStringAsFixed(1)}',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
+                  );
+                }
+                // If current image is null, show a progress indicator
+                return Center(
+                  child: CircularProgressIndicator(),
+                );
+              },
+            ),
+          ),
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Visibility(
+                        visible: showauto,
+                        child: SfSlider(
+                          value: auto,
+                          onChanged: (value) {
+                            setState(() {
+                              auto = value;
+                              adjust(a: auto);
+                            });
+                          },
+                        ),
                       ),
-                  ],
+                      Visibility(
+                        visible: showbrightness,
+                        child: slider(
+                          value: brightness,
+                          onChanged: (value) {
+                            setState(() {
+                              brightness = value;
+                              adjust(b: brightness);
+                            });
+                          },
+                        ),
+                      ),
+                      Visibility(
+                        visible: showcontrast,
+                        child: slider(
+                          value: contrast,
+                          onChanged: (value) {
+                            setState(() {
+                              contrast = value;
+                              adjust(c: contrast);
+                            });
+                          },
+                        ),
+                      ),
+                      Visibility(
+                        visible: showsaturation,
+                        child: slider(
+                          value: saturation,
+                          onChanged: (value) {
+                            setState(() {
+                              saturation = value;
+                              adjust(s: saturation);
+                            });
+                          },
+                        ),
+                      ),
+                      Visibility(
+                        visible: showhue,
+                        child: slider(
+                          value: hue,
+                          onChanged: (value) {
+                            setState(() {
+                              hue = value;
+                              adjust(h: hue);
+                            });
+                          },
+                        ),
+                      ),
+                      Visibility(
+                        visible: showsepia,
+                        child: slider(
+                          value: sepia,
+                          onChanged: (value) {
+                            setState(() {
+                              sepia = value;
+                              adjust(se: sepia);
+                            });
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                TextButton(
+                  onPressed: () {
+                    setState(() {
+                      brightness = 0;
+                      contrast = 0;
+                      saturation = 0;
+                      hue = 0;
+                      sepia = 0;
+                      adjust(
+                        b: brightness,
+                        c: contrast,
+                        s: saturation,
+                        h: hue,
+                        se: sepia,
+                      );
+                    });
+                  },
+                  child: Text("Reset"),
                 ),
               ],
             ),
-          ),
+          )
         ],
       ),
-    );
-  }
-
-  Widget _buildIconButton(IconData icon, String filterName) {
-    final bool isSelected = _selectedFilterName == filterName;
-    var buttonColor = isSelected ? Colors.deepPurple[200] : null; // Default color
-    final textColor = isSelected ? Colors.white : null;
-
-    // Check if the filter is applied
-    if (_selectedFilterName != null && _selectedFilterName == filterName) {
-      buttonColor = Colors.green; // Change button color for applied filters
-    }
-
-    return Padding(
-      padding: const EdgeInsets.only(left: 15, right: 15),
-      child: Column(
-        children: [
-          Material(
-            elevation: 3,
-            borderRadius: BorderRadius.circular(10),
-            child: Container(
-              height: 50,
-              width: 50,
-              decoration: BoxDecoration(
-                color: buttonColor ?? Colors.black,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: IconButton(
-                onPressed: () {
-                  if (filterName == 'Auto') {
-                    _applyAllFilters(_sliderValue);
-                    setState(() {
-                      _isIconButtonSelected = true; // Show slider
-                    });
-                  } else {
-                    _applyFilterByName(filterName);
-                    setState(() {
-                      _isIconButtonSelected = true; // Show slider
-                    });
-                  }
-                },
-                icon: Icon(
-                  icon,
-                  color: Colors.white,
+      bottomNavigationBar: Container(
+        height: 58,
+        width: double.infinity,
+        color: Colors.black,
+        child: SafeArea(
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: [
+                SizedBox(
+                  width: 20,
                 ),
-              ),
-            ),
-          ),
-          SizedBox(height: 5),
-          Text(
-            filterName,
-            style: TextStyle(
-              color: Colors.black,
-              fontSize: 13,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
 
-        ],
+                _BottomButton(
+                    Icons.auto_fix_high,
+                    'Auto',
+                    color: showauto ? Colors.blue : null,
+                    onPressed: () {
+                      Selected = 'Auto';
+                      showSlider(a: true);
+                      autoAdjust();
+                    }),
+                _BottomButton(
+                    Icons.brightness_4,
+                    'Brightness',
+                    color: showbrightness ? Colors.blue : null,
+                    onPressed: () {
+                      Selected = 'Brightness';
+                      showSlider(b: true);
+                    }),
+                _BottomButton(
+                    Icons.contrast,
+                    'Contrast',
+                    color: showcontrast ? Colors.blue : null,
+                    onPressed: () {
+                      Selected = 'Contrast';
+                      showSlider(c: true);
+                    }),
+                _BottomButton(
+                    Icons.water_drop,
+                    'Saturation',
+                    color: showsaturation ? Colors.blue : null,
+                    onPressed: () {
+                      Selected = 'Saturation';
+                      showSlider(s: true);
+                    }),
+                _BottomButton(
+                    Icons.filter_tilt_shift,
+                    'Hue',
+                    color: showhue ? Colors.blue : null,
+                    onPressed: () {
+                      Selected = 'Hue';
+                      showSlider(h: true);
+                    }),
+                _BottomButton(
+                    Icons.motion_photos_on,
+                    'Sepia',
+                    color: showsepia ? Colors.blue : null,
+                    onPressed: () {
+                      Selected = 'Sepia';
+                      showSlider(se: true);
+                    }),
+                // Button for auto adjustment
+
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
 
-  void _applyFilterByName(String filterName) {
+  // Method to auto-adjust all filters
+  void autoAdjust() async {
+    // Get the current image data
+    Uint8List imageData = await getCurrentImageData();
+
+    // Calculate auto-adjusted values for each filter
+    double autoBrightness = calculateAutoBrightness(imageData);
+    double autoContrast = calculateAutoContrast(imageData);
+    double autoSaturation = calculateAutoSaturation(imageData);
+    double autoHue = calculateAutoHue(imageData);
+    double autoSepia = calculateAutoSepia(imageData);
+
+    // Update the state with auto-adjusted values
     setState(() {
-      _selectedFilterName = filterName;
-      switch (filterName) {
-        case 'Highlight':
-          _selectedFilter = _generateHighlightFilter(_sliderValue);
-          break;
+      brightness = autoBrightness;
+      contrast = autoContrast;
+      saturation = autoSaturation;
+      hue = autoHue;
+      sepia = autoSepia;
+      adjust(
+        b: autoBrightness,
+        c: autoContrast,
+        s: autoSaturation,
+        h: autoHue,
+        se: autoSepia,
+      );
+      switch (Selected) {
         case 'Brightness':
-          _selectedFilter = _generateColorFilter(_sliderValue);
+          showSlider(b: true);
           break;
-        case 'Exposure':
-          _selectedFilter = _generateExposureFilter(_sliderValue);
-          break;
-        case 'Blur':
-          _selectedFilter = _generateBlurFilter(_sliderValue);
-          break;
-        case 'Fade':
-          _selectedFilter = _generateFadeFilter(_sliderValue);
+        case 'Contrast':
+          showSlider(c: true);
           break;
         case 'Saturation':
-          _selectedFilter = _generateSaturationFilter(_sliderValue);
+          showSlider(s: true);
           break;
-        case 'Shadow':
-          _selectedFilter = _generateShadowFilter(_sliderValue);
+        case 'Hue':
+          showSlider(h: true);
           break;
-        case 'Vignette':
-          _selectedFilter = _generateVignetteFilter(_sliderValue);
+        case 'Sepia':
+          showSlider(se: true);
           break;
         default:
-          break;
+          showSlider();
       }
-
-      _captureFilteredImage().then((image) {
-        setState(() {
-          _filteredImage = image;
-        });
-      });
     });
   }
 
-  void _applyAllFilters(double value) {
-    List<String> appliedFilters = [];
-
-    for (var iconData in iconDataList) {
-      String filterName = iconData['filterName'];
-      switch (filterName) {
-        case 'Auto':
-          break;
-        case 'Highlight':
-          _selectedFilter = _generateHighlightFilter(value);
-          appliedFilters.add(filterName);
-          break;
-        case 'Brightness':
-          _selectedFilter = _generateColorFilter(value);
-          appliedFilters.add(filterName);
-          break;
-        case 'Exposure':
-          _selectedFilter = _generateExposureFilter(value);
-          appliedFilters.add(filterName);
-          break;
-        case 'Blur':
-          _selectedFilter = _generateBlurFilter(value);
-          appliedFilters.add(filterName);
-          break;
-        case 'Fade':
-          _selectedFilter = _generateFadeFilter(value);
-          appliedFilters.add(filterName);
-          break;
-        case 'Saturation':
-          _selectedFilter = _generateSaturationFilter(value);
-          appliedFilters.add(filterName);
-          break;
-        case 'Shadow':
-          _selectedFilter = _generateShadowFilter(value);
-          appliedFilters.add(filterName);
-          break;
-        case 'Vignette':
-          _selectedFilter = _generateVignetteFilter(value);
-          appliedFilters.add(filterName);
-          break;
-        default:
-          break;
-      }
-
-      _applyFilterByName(filterName);
+  // Method to get the current image data
+  Future<Uint8List> getCurrentImageData() async {
+    // Retrieve the current image data from the provider
+    AppImageProvider appImageProvider =
+    Provider.of<AppImageProvider>(context, listen: false);
+    Uint8List? imageData = appImageProvider.currentImage;
+    if (imageData == null) {
+      throw Exception('No image data available');
     }
-    print('Applied filters: $appliedFilters');
+    return imageData;
   }
 
-  Future<ui.Image?> _captureFilteredImage() async {
-    try {
-      RenderRepaintBoundary boundary =
-      _boundaryKey.currentContext!.findRenderObject() as RenderRepaintBoundary;
-
-      final targetWidth = 700;
-      final targetHeight = 700;
-      final pixelRatio =
-      (targetWidth / boundary.size.width).clamp(1.0, double.infinity);
-
-      ui.Image? image = await boundary.toImage(pixelRatio: pixelRatio);
-
-      return image;
-    } catch (e) {
-      print('Error capturing image: $e');
-      return null;
-    }
+  Widget _BottomButton(IconData icon, String title,
+      {Color? color, required onPressed}) {
+    return InkWell(
+      onTap: onPressed,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+        child: Column(
+          children: [
+            Icon(
+              icon,
+              color: color ?? Colors.white,
+            ),
+            Text(
+              title,
+              style: TextStyle(color: color ?? Colors.white70),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
-  ColorFilter _generateColorFilter(double brightness) {
-    return ColorFilter.matrix([
-      brightness,
-      0,
-      0,
-      0,
-      0,
-      0,
-      brightness,
-      0,
-      0,
-      0,
-      0,
-      0,
-      brightness,
-      0,
-      0,
-      0,
-      0,
-      0,
-      1,
-      0,
-    ]);
-  }
-
-  ColorFilter _generateExposureFilter(double exposure) {
-    return ColorFilter.matrix([
-      exposure,
-      0,
-      0,
-      0,
-      0,
-      0,
-      exposure,
-      0,
-      0,
-      0,
-      0,
-      0,
-      exposure,
-      0,
-      0,
-      0,
-      0,
-      0,
-      1,
-      0,
-    ]);
-  }
-
-  ColorFilter _generateFadeFilter(double fade) {
-    return ColorFilter.matrix([
-      1.0,
-      0,
-      0,
-      0,
-      fade,
-      0,
-      1.0,
-      0,
-      0,
-      fade,
-      0,
-      0,
-      1.0,
-      0,
-      fade,
-      0,
-      0,
-      0,
-      1.0,
-      0,
-    ]);
-  }
-
-  ColorFilter _generateBlurFilter(double blurValue) {
-    return ColorFilter.matrix([
-      1,
-      0,
-      0,
-      0,
-      0,
-      0,
-      1,
-      0,
-      0,
-      0,
-      0,
-      0,
-      1,
-      0,
-      0,
-      0,
-      0,
-      0,
-      blurValue * blurValue.toDouble(),
-      0,
-    ]);
-  }
-
-  ColorFilter _generateHighlightFilter(double highlight) {
-    return ColorFilter.matrix([
-      1 + highlight,
-      0,
-      0,
-      0,
-      0,
-      0,
-      1 + highlight,
-      0,
-      0,
-      0,
-      0,
-      0,
-      1 + highlight,
-      0,
-      0,
-      0,
-      0,
-      0,
-      1,
-      0,
-    ]);
-  }
-
-  ColorFilter _generateSaturationFilter(double saturation) {
-    return ColorFilter.matrix([
-      0.2126 + 0.7874 * saturation,
-      0.7152 - 0.7152 * saturation,
-      0.0722 - 0.0722 * saturation,
-      0,
-      0,
-      0.2126 - 0.2126 * saturation,
-      0.7152 + 0.2848 * saturation,
-      0.0722 - 0.0722 * saturation,
-      0,
-      0,
-      0.2126 - 0.2126 * saturation,
-      0.7152 - 0.7152 * saturation,
-      0.0722 + 0.9278 * saturation,
-      0,
-      0,
-      0,
-      0,
-      0,
-      1,
-      0,
-    ]);
-  }
-
-  ColorFilter _generateShadowFilter(double shadow) {
-    return ColorFilter.matrix([
-      1,
-      0,
-      0,
-      0,
-      shadow,
-      0,
-      1,
-      0,
-      0,
-      shadow,
-      0,
-      0,
-      1,
-      0,
-      shadow,
-      0,
-      0,
-      0,
-      1,
-      0,
-    ]);
-  }
-
-  ColorFilter _generateVignetteFilter(double vignette) {
-    return ColorFilter.matrix([
-      vignette,
-      0,
-      0,
-      0,
-      0,
-      0,
-      vignette,
-      0,
-      0,
-      0,
-      0,
-      0,
-      vignette,
-      0,
-      0,
-      0,
-      0,
-      0,
-      1.0 - vignette,
-      0,
-    ]);
+  Widget slider({label, value, onChanged}) {
+    return Slider(
+        label: '${value.toStringAsFixed(2)}',
+        value: value,
+        max: 1,
+        min: -0.9,
+        onChanged: onChanged);
   }
 }

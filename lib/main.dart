@@ -36,6 +36,7 @@
 //
 
 import 'package:ai_remover_background/profile_page.dart';
+import 'package:ai_remover_background/provider.dart';
 import 'package:ai_remover_background/splash_screen.dart';
 import 'package:device_preview/device_preview.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -75,6 +76,7 @@ class _MyAppState extends State<MyApp> {
     return MultiProvider(
         providers: [
           ChangeNotifierProvider(create: (context)=>ImageProviderPicker()),
+          ChangeNotifierProvider(create: (context)=>AppImageProvider()),
 
         ],
         child:  MaterialApp(
