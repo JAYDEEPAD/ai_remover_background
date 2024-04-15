@@ -1,15 +1,13 @@
 import 'dart:typed_data';
 
-
 import 'package:ai_remover_background/home_screen.dart';
 import 'package:ai_remover_background/provider.dart';
 import 'package:colorfilter_generator/addons.dart';
 import 'package:colorfilter_generator/colorfilter_generator.dart';
+import 'package:crop_image/crop_image.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:screenshot/screenshot.dart';
-import 'package:syncfusion_flutter_sliders/sliders.dart';
-
 
 class Adjustment_Screen extends StatefulWidget {
   const Adjustment_Screen({super.key});
@@ -293,12 +291,10 @@ class Adjustment_Screen extends StatefulWidget {
 //     );
 //   }
 // }
-
 class _Adjustment_ScreenState extends State<Adjustment_Screen> {
   late AppImageProvider appImageProvider;
   late ColorFilterGenerator adj;
   ScreenshotController screenshotController = ScreenshotController();
-
   double brightness = 0;
   double contrast = 0;
   double saturation = 0;
@@ -455,7 +451,7 @@ class _Adjustment_ScreenState extends State<Adjustment_Screen> {
           ColorFilterAddons.saturation(s ?? saturation),
           ColorFilterAddons.hue(h ?? hue),
           ColorFilterAddons.sepia(se ?? sepia),
-          ColorFilterAddons.colorOverlay(5, 5, 5, a ?? auto),
+          ColorFilterAddons.colorOverlay(3, 3, 5, a ?? auto),
         ]);
   }
 
@@ -511,13 +507,14 @@ class _Adjustment_ScreenState extends State<Adjustment_Screen> {
             child: Consumer<AppImageProvider>(
               builder: (BuildContext context, value, Widget? child) {
                 if (value.currentImage != null) {
-                  return Screenshot(
-                    controller: screenshotController,
-                    child: ColorFiltered(
-                      colorFilter: ColorFilter.matrix(adj.matrix),
-                      child: Image.memory(value.currentImage!),
-                    ),
-                  );
+                  return
+                    Screenshot(
+                      controller: screenshotController,
+                      child: ColorFiltered(
+                        colorFilter: ColorFilter.matrix(adj.matrix),
+                        child: Image.memory(value.currentImage!),
+                      ),
+                    );
                 }
                 // If current image is null, show a progress indicator
                 return Center(
@@ -536,7 +533,7 @@ class _Adjustment_ScreenState extends State<Adjustment_Screen> {
                     children: [
                       Visibility(
                         visible: showauto,
-                        child: SfSlider(
+                        child: slider(
                           value: auto,
                           onChanged: (value) {
                             setState(() {
@@ -718,20 +715,26 @@ class _Adjustment_ScreenState extends State<Adjustment_Screen> {
     double autoSepia = calculateAutoSepia(imageData);
 
     // Update the state with auto-adjusted values
+    // Update the state with auto-adjusted values clamped within the valid range
     setState(() {
-      brightness = autoBrightness;
-      contrast = autoContrast;
-      saturation = autoSaturation;
-      hue = autoHue;
-      sepia = autoSepia;
+      brightness = autoBrightness.clamp(-0.9, 1.0);
+      contrast = autoContrast.clamp(-0.9, 1.0);
+      saturation = autoSaturation.clamp(-0.9, 1.0);
+      hue = autoHue.clamp(-0.9, 1.0);
+      sepia = autoSepia.clamp(-0.9, 1.0);
       adjust(
+        a: autoBrightness.clamp(-0.9, 1.0), // Adjusted for auto slider
         b: autoBrightness,
         c: autoContrast,
         s: autoSaturation,
         h: autoHue,
         se: autoSepia,
       );
+      // Update the visibility of sliders based on the selected filter
       switch (Selected) {
+        case 'Auto':
+          showSlider(a: true);
+          break;
         case 'Brightness':
           showSlider(b: true);
           break;
@@ -751,6 +754,7 @@ class _Adjustment_ScreenState extends State<Adjustment_Screen> {
           showSlider();
       }
     });
+
   }
 
   // Method to get the current image data
