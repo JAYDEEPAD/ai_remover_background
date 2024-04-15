@@ -1,12 +1,348 @@
+// // // import 'package:cloud_firestore/cloud_firestore.dart';
+// // // import 'package:flutter/material.dart';
+// // // import 'package:projects/model/filter.dart';
+// // // import 'package:projects/widgets/homescreen.dart';
+// // // import 'package:projects/widgets/provider.dart';
+// // // import 'package:provider/provider.dart';
+// // //
+// // // import '../startscreen.dart';
+// // // class Filter_Screen extends StatefulWidget {
+// // //   const Filter_Screen({super.key});
+// // //
+// // //   @override
+// // //   State<Filter_Screen> createState() => _Filter_ScreenState();
+// // // }
+// // //
+// // // class _Filter_ScreenState extends State<Filter_Screen> {
+// // //   late Filter currentFilter;
+// // //   late List<Filter> filters;
+// // //   @override
+// // //   void initState() {
+// // //     // TODO: implement initState
+// // //       filters = Filters().list();
+// // //     currentFilter = filters[0];
+// // //     super.initState();
+// // //   }
+// // //   @override
+// // //   Widget build(BuildContext context) {
+// // //     return Scaffold(
+// // //       appBar: AppBar(
+// // //         backgroundColor: Colors.black,
+// // //         title: Text("Filters",style: TextStyle(color: Colors.white),),
+// // //         centerTitle: true,
+// // //         leading: IconButton(
+// // //             onPressed: (){
+// // //               Navigator.push(context, MaterialPageRoute(builder: (context)=>HomeScreen()));
+// // //             },
+// // //             icon: Icon(Icons.close,color: Colors.white,)),
+// // //         actions: [
+// // //           IconButton(onPressed: () async {
+// // //
+// // //
+// // //           }, icon: Icon(Icons.check,color: Colors.white,)),
+// // //         ],
+// // //       ),
+// // //       body: Center(
+// // //         child: Consumer<AppImageProvider>(
+// // //             builder: (BuildContext context, value, Widget? child) {
+// // //               if (value.currentImage != null) {
+// // //                 return ColorFiltered(
+// // //                   colorFilter: ColorFilter.matrix(
+// // //                          currentFilter.matrix
+// // //                   ),
+// // //                     child: Image.memory(value.currentImage!));
+// // //
+// // //               }
+// // //               return Center(
+// // //                 child: CircularProgressIndicator(),
+// // //               );
+// // //             }),
+// // //       ),
+// // //     );
+// // //   }
+// // // }
+// // import 'dart:typed_data';
+// //
+// // import 'package:flutter/material.dart';
+// // import 'package:projects/model/filter.dart'; // Import your Filter class here
+// // import 'package:projects/widgets/homescreen.dart'; // Import HomeScreen if not already imported
+// // import 'package:projects/widgets/provider.dart';
+// // import 'package:provider/provider.dart';
+// // import 'package:screenshot/screenshot.dart';
+// //
+// // import '../helper/filters_s.dart';
+// //
+// // class Filter_Screen extends StatefulWidget {
+// //   const Filter_Screen({Key? key}) : super(key: key);
+// //
+// //   @override
+// //   State<Filter_Screen> createState() => _Filter_ScreenState();
+// // }
+// //
+// // class _Filter_ScreenState extends State<Filter_Screen> {
+// //   late Filter currentFilter;
+// //   late List<Filter> filters;
+// //    late AppImageProvider appImageProvider;
+// //    ScreenshotController screenshotController = ScreenshotController();
+// //   @override
+// //   void initState() {
+// //
+// //     // Initialize your filters list here
+// //
+// //    // currentFilter = filters[0];
+// //
+// //     appImageProvider = Provider.of<AppImageProvider>(context,listen: false);
+// //     super.initState();
+// //     // Set initial filter
+// //   }
+// //
+// //   @override
+// //   Widget build(BuildContext context) {
+// //     return Scaffold(
+// //       appBar: AppBar(
+// //         backgroundColor: Colors.black,
+// //         title: Text(
+// //           "Filters",
+// //           style: TextStyle(color: Colors.white),
+// //         ),
+// //         centerTitle: true,
+// //         leading: IconButton(
+// //           onPressed: () {
+// //             Navigator.push(
+// //               context,
+// //               MaterialPageRoute(builder: (context) => HomeScreen()),
+// //             );
+// //           },
+// //           icon: Icon(Icons.close, color: Colors.white),
+// //         ),
+// //         actions: [
+// //           IconButton(
+// //             onPressed: () async {
+// //              Uint8List? byte = await screenshotController.capture();
+// //              appImageProvider.changeImage(byte!);
+// //              if(!mounted) return;
+// //              Navigator.of(context).pop();
+// //             },
+// //             icon: Icon(Icons.check, color: Colors.white),
+// //           ),
+// //         ],
+// //       ),
+// //       body: Center(
+// //         child: Consumer<AppImageProvider>(
+// //           builder: (BuildContext context, value, Widget? child) {
+// //             if (value.currentImage != null) {
+// //               return
+// //                 Screenshot(
+// //                     controller: screenshotController,
+// //                   child: ColorFiltered(
+// //                       colorFilter: ColorFilter.matrix(currentFilter.matrix),
+// //                     child: Image.memory(value.currentImage!),
+// //                   ),
+// //                 );
+// //             }
+// //             // If current image is null, show a progress indicator
+// //             return Center(
+// //               child: CircularProgressIndicator(),
+// //             );
+// //           },
+// //         ),
+// //       ),
+// //       bottomNavigationBar: Container(
+// //       height: 70,
+// //       width: double.infinity,
+// //       color: Colors.black,
+// //       child: SafeArea(
+// //         child: SingleChildScrollView(
+// //           scrollDirection: Axis.horizontal,
+// //           child:Row(
+// //
+// //           )
+// //
+// //         ),
+// //       ),
+// //     ),
+// //     );
+// //   }
+// // }
+// //
+// import 'dart:typed_data';
+//
+// import 'package:flutter/material.dart';
+// import 'package:projects/model/filter.dart'; // Import the Filter class
+// import 'package:projects/widgets/homescreen.dart'; // Import HomeScreen if not already imported
+// import 'package:projects/widgets/provider.dart';
+// import 'package:provider/provider.dart';
+// import 'package:screenshot/screenshot.dart';
+//
+// import '../helper/filters_s.dart';
+//
+// class Filter_Screen extends StatefulWidget {
+//   const Filter_Screen({Key? key}) : super(key: key);
+//
+//   @override
+//   State<Filter_Screen> createState() => _Filter_ScreenState();
+// }
+//
+// class _Filter_ScreenState extends State<Filter_Screen> {
+//   // late Filter currentFilter;
+//   // late List<Filter> filters;
+//   late AppImageProvider appImageProvider;
+//   ScreenshotController screenshotController = ScreenshotController();
+//
+//   @override
+//   void initState() {
+//     super.initState();
+//     // Initialize your filters list here using the Filters class
+//     // filters = Filters().list();
+//     // // Set initial filter
+//     // currentFilter = filters[0];
+//     // Get the appImageProvider once the context is available
+//     appImageProvider = Provider.of<AppImageProvider>(context, listen: false);
+//   }
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       backgroundColor: Color(0xff212121),
+//       appBar: AppBar(
+//         backgroundColor: Colors.black,
+//         title: Text(
+//           "Filters",
+//           style: TextStyle(color: Colors.white),
+//         ),
+//         centerTitle: true,
+//         leading: IconButton(
+//           onPressed: () {
+//             Navigator.push(
+//               context,
+//               MaterialPageRoute(builder: (context) => HomeScreen()),
+//             );
+//           },
+//           icon: Icon(Icons.close, color: Colors.white),
+//         ),
+//         actions: [
+//           IconButton(
+//             onPressed: () async {
+//               Uint8List? byte = await screenshotController.capture();
+//               appImageProvider.changeImage(byte!);
+//               if (!mounted) return;
+//               Navigator.of(context).pop();
+//             },
+//             icon: Icon(Icons.check, color: Colors.white),
+//           ),
+//         ],
+//       ),
+//       body:
+//       Center(
+//         child: Consumer<AppImageProvider>(
+//           builder: (BuildContext context, value, Widget? child) {
+//             if (value.currentImage != null) {
+//               return Screenshot(
+//                 controller: screenshotController,
+//                 child: ColorFiltered(
+//                         colorFilter: const ColorFilter.mode(
+//                   Colors.blue,
+//                   BlendMode.modulate,
+//                 ),
+//                     child: Image.memory(value.currentImage!)
+//                 ),
+//               );
+//             }
+//             // If current image is null, show a progress indicator
+//             return Center(
+//               child: CircularProgressIndicator(),
+//             );
+//           },
+//         ),
+//       ),
+//       bottomNavigationBar: Container(
+//         height: 70,
+//         width: double.infinity,
+//         color: Colors.black,
+//         child: SafeArea(
+//           child: SingleChildScrollView(
+//             scrollDirection: Axis.horizontal,
+//             child: Row(
+//               children: [
+//             _BottomButton(
+//                 child: Text("purple",style: TextStyle(color: Colors.white),),
+//                 onPressed: (){
+//
+//                 }
+//             ),
+//                 _BottomButton(
+//
+//                     onPressed: (){
+//
+//                     }, child: Text("abc"),
+//                 ),
+//                 _BottomButton(
+//                     child: Text("filter",style: TextStyle(color: Colors.white),),
+//                     onPressed: (){
+//
+//                     }
+//                 )
+//               ],
+//             ),
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+//   Widget _BottomButton({required child,required onPressed}){
+//     return Consumer<AppImageProvider>(
+//       builder: (BuildContext context, value, Widget? child,) {
+//         return InkWell(
+//           onTap: onPressed,
+//           child: Column(
+//             children: [
+//               Image.memory(value.currentImage!,height: 40,width: 70,),
+//               Text("data",style: TextStyle(color: Colors.white),),
+//             ],
+//           ),
+//         );
+//       }
+//     );
+//   }
+// }
+//
+// // class _FilterItem extends StatelessWidget {
+// //   final Filter filter;
+// //   final VoidCallback onPressed;
+// //
+// //   const _FilterItem({Key? key, required this.filter, required this.onPressed})
+// //       : super(key: key);
+// //
+// //   @override
+// //   Widget build(BuildContext context) {
+// //     return InkWell(
+// //       onTap: onPressed,
+// //       child: Padding(
+// //         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+// //         child: Column(
+// //           children: [
+// //             Text(filter.filterName, style: TextStyle(color: Colors.white)),
+// //             SizedBox(height: 5),
+// //
+// //             // You can add more widgets here to represent the filter visually
+// //           ],
+// //         ),
+// //       ),
+// //     );
+// //   }
+// // }
+//
+
 import 'dart:typed_data';
+
+import 'package:ai_remover_background/provider.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:image/image.dart' as img;
+
 import 'package:provider/provider.dart';
 import 'package:screenshot/screenshot.dart';
 
-import 'home_screen.dart';
-import 'provider.dart';
+import '../helper/filters.dart';
+import '../helper/filters_s.dart';
 
 class FilterScreen extends StatefulWidget {
   const FilterScreen({Key? key}) : super(key: key);
@@ -16,128 +352,19 @@ class FilterScreen extends StatefulWidget {
 }
 
 class _FilterScreenState extends State<FilterScreen> {
-  late AppImageProvider appImageProvider;
-  late Future<void> _initProviderFuture;
+
+  late Filter currentFilter;
+  late List<Filter> filters;
+
+  late AppImageProvider imageProvider;
   ScreenshotController screenshotController = ScreenshotController();
-
-  late Uint8List filter1ImageBytes = Uint8List(0); // Byte data for Filter 1 image
-  late Uint8List filter2ImageBytes = Uint8List(0); // Byte data for Filter 2 image
-
-  // Maintain the currently applied filter
-  FilterType? _currentFilter;
 
   @override
   void initState() {
+    filters = Filters().list();
+    currentFilter = filters[0];
+    imageProvider = Provider.of<AppImageProvider>(context, listen: false);
     super.initState();
-    _initProviderFuture = _initProvider();
-  }
-
-  Future<void> _initProvider() async {
-    appImageProvider = Provider.of<AppImageProvider>(context, listen: false);
-    await _loadFilterImages(); // Load filter images
-  }
-
-  Future<void> _loadFilterImages() async {
-    final ByteData filter1Data = await rootBundle.load('assets/image/ai1.png');
-    filter1ImageBytes = filter1Data.buffer.asUint8List();
-
-    final ByteData filter2Data = await rootBundle.load('assets/image/ai2.png');
-    filter2ImageBytes = filter2Data.buffer.asUint8List();
-
-    setState(() {}); // Update UI after loading images
-  }
-
-  void applyFilter(Uint8List filterImage, FilterType filterType) {
-    appImageProvider.changeImage(filterImage);
-    setState(() {
-      _currentFilter = filterType; // Update the current filter
-    });
-  }
-
-  void applyOriginalImage() {
-    appImageProvider.changeImage(appImageProvider.originalImage); // Reset to original image
-    setState(() {
-      _currentFilter = null; // No filter applied
-    });
-  }
-  Uint8List? _applyVividFilter(Uint8List imageData) {
-    img.Image? image = img.decodeImage(imageData);
-
-    if (image == null) {
-      return null; // Handle decoding failure
-    }
-
-    // Apply vivid filter effects
-    final double saturationFactor = 1.5;
-    final double brightnessFactor = 1.2;
-
-    img.adjustColor(image, saturation: saturationFactor);
-    img.adjustColor(image, brightness: brightnessFactor);
-
-    // Encode the modified image back to Uint8List
-    return img.encodePng(image);
-  }
-
-  Uint8List? _applySepiaFilter(Uint8List imageData) {
-    img.Image? image = img.decodeImage(imageData);
-
-    if (image == null) {
-      return null; // Handle decoding failure
-    }
-
-    // Apply sepia filter effects
-    img.colorOffset(image, red: 0.5, green: 0.3, blue: 0.1);
-
-    // Encode the modified image back to Uint8List
-    return img.encodePng(image);
-  }
-
-  Uint8List? _applyNoirFilter(Uint8List imageData) {
-    img.Image? image = img.decodeImage(imageData);
-
-    if (image == null) {
-      return null; // Handle decoding failure
-    }
-
-    // Apply noir filter effects (convert image to grayscale)
-    img.grayscale(image);
-
-    final double contrastFactor = 1.5;
-
-    img.adjustColor(image, contrast: contrastFactor);
-    // Encode the modified image back to Uint8List
-    return img.encodePng(image);
-  }
-
-  Uint8List? _applySilvertoneFilter(Uint8List imageData) {
-    img.Image? image = img.decodeImage(imageData);
-
-    if (image == null) {
-      return null; // Handle decoding failure
-    }
-
-    // Apply noir filter effects (convert image to grayscale)
-    /*img.grayscale(image);*/
-
-    final double contrastFactor = 1.2;
-
-    img.adjustColor(image, contrast: contrastFactor);
-    img.grayscale(image);
-    // Encode the modified image back to Uint8List
-    return img.encodePng(image);
-  }
-
-  Uint8List? _applyMonoFilter(Uint8List imageData) {
-    img.Image? image = img.decodeImage(imageData);
-    if (image == null) {
-      return null; // Handle decoding failure
-    }
-
-    // Convert image to grayscale
-    img.grayscale(image);
-
-    // Encode the modified image back to Uint8List
-    return img.encodePng(image);
   }
 
   @override
@@ -146,226 +373,89 @@ class _FilterScreenState extends State<FilterScreen> {
       backgroundColor: Color(0xff212121),
       appBar: AppBar(
         backgroundColor: Colors.black,
-        title: Text(
-          "Filters",
-          style: TextStyle(color: Colors.white),
-        ),
+        leading: const CloseButton(color: Colors.white,),
         centerTitle: true,
-        leading: IconButton(
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => HomeScreen()),
-            );
-          },
-          icon: Icon(Icons.close, color: Colors.white),
-        ),
+        title: const Text('Filter Screen',style: TextStyle(color: Colors.white),),
         actions: [
           IconButton(
-            onPressed: () async {
-              Uint8List? byte = await screenshotController.capture();
-              appImageProvider.changeImage(byte!);
-              if (!mounted) return;
-              Navigator.of(context).pop();
-            },
-            icon: Icon(Icons.check, color: Colors.white),
-          ),
+              onPressed: () async {
+                Uint8List? bytes = await screenshotController.capture();
+                imageProvider.changeImage(bytes!);
+                if(!mounted) return;
+                Navigator.of(context).pop();
+              },
+              icon: const Icon(Icons.done,color: Colors.white,)
+          )
         ],
       ),
       body: Center(
-        child: FutureBuilder(
-          future: _initProviderFuture,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return CircularProgressIndicator();
-            } else {
-              return Consumer<AppImageProvider>(
-                builder: (BuildContext context, value, Widget? child) {
-                  if (value.currentImage != null) {
-                    return Screenshot(
-                      controller: screenshotController,
-                      child: Image.memory(value.currentImage!),
-                    );
-                  }
-                  // If current image is null, show a progress indicator
-                  return CircularProgressIndicator();
-                },
+        child: Consumer<AppImageProvider>(
+          builder: (BuildContext context, value, Widget? child) {
+            if (value.currentImage != null) {
+              return Screenshot(
+                controller: screenshotController,
+                child: ColorFiltered(
+                    colorFilter: ColorFilter.matrix(currentFilter.matrix),
+                    child: Image.memory(value.currentImage!)
+                ),
               );
             }
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
           },
         ),
       ),
       bottomNavigationBar: Container(
-        height: 70,
         width: double.infinity,
+        height: 100,
         color: Colors.black,
         child: SafeArea(
-          child: SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: [
-                _BottomButton(
-                  filterType: FilterType.Original,
-                  currentFilter: _currentFilter,
-                  onPressed: () {
-                    applyOriginalImage();
-                    // Do nothing for the original image
-                  },
-                ),
-                _BottomButton(
-                  filterType: FilterType.Vivid,
-                  currentFilter: _currentFilter,
-                  onPressed: () {
-                    // Apply filter only if it's not already applied
-                    if (_currentFilter != FilterType.Vivid) {
-                      Uint8List? modifiedImageData = _applyVividFilter(appImageProvider.currentImage!);
-                      if (modifiedImageData != null) {
-                        applyFilter(modifiedImageData, FilterType.Vivid);
-                      } else {
-                        // Handle the case where filter application fails
-                      }
-                    }
-                  },
-                ),
-                _BottomButton(
-                  filterType: FilterType.Sepia,
-                  currentFilter: _currentFilter,
-                  onPressed: () {
-                    // Apply filter only if it's not already applied
-                    if (_currentFilter != FilterType.Sepia) {
-                      Uint8List? modifiedImageData = _applySepiaFilter(appImageProvider.currentImage!);
-                      if (modifiedImageData != null) {
-                        applyFilter(modifiedImageData, FilterType.Sepia);
-                      } else {
-                        // Handle the case where filter application fails
-                      }
-                    }
-                  },
-                ),
-                _BottomButton(
-                  filterType: FilterType.Noir,
-                  currentFilter: _currentFilter,
-                  onPressed: () {
-                    // Apply filter only if it's not already applied
-                    if (_currentFilter != FilterType.Noir) {
-                      Uint8List? modifiedImageData = _applyNoirFilter(appImageProvider.currentImage!);
-                      if (modifiedImageData != null) {
-                        applyFilter(modifiedImageData, FilterType.Noir);
-                      } else {
-                        // Handle the case where filter application fails
-                      }
-                    }
-                  },
-                ),
-                _BottomButton(
-                  filterType: FilterType.Silvertone,
-                  currentFilter: _currentFilter,
-                  onPressed: () {
-                    // Apply filter only if it's not already applied
-                    if (_currentFilter != FilterType.Silvertone) {
-                      Uint8List? modifiedImageData = _applySilvertoneFilter(appImageProvider.currentImage!);
-                      if (modifiedImageData != null) {
-                        applyFilter(modifiedImageData, FilterType.Silvertone);
-                      } else {
-                        // Handle the case where filter application fails
-                      }
-                    }
-                  },
-                ),
-                _BottomButton(
-                  filterType: FilterType.Mono,
-                  currentFilter: _currentFilter,
-                  onPressed: () {
-                    // Apply filter only if it's not already applied
-                    if (_currentFilter != FilterType.Mono) {
-                      Uint8List? modifiedImageData = _applyMonoFilter(appImageProvider.currentImage!);
-                      if (modifiedImageData != null) {
-                        applyFilter(modifiedImageData, FilterType.Mono);
-                      } else {
-                        // Handle the case where filter application fails
-                      }
-                    }
-                  },
-                ),
-              ],
-            ),
-          ),
+            child: Consumer<AppImageProvider>(
+                builder: (BuildContext context, value, Widget? child) {
+                  return ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: filters.length,
+                    itemBuilder: (BuildContext context, int index){
+                      Filter filter = filters[index];
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 10),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            SizedBox(
+                              width: 60,
+                              height: 60,
+                              child: FittedBox(
+                                fit: BoxFit.fill,
+                                child: InkWell(
+                                  onTap: (){
+                                    setState(() {
+                                      currentFilter = filter;
+                                    });
+                                  },
+                                  child: ColorFiltered(
+                                    colorFilter: ColorFilter.matrix(filter.matrix),
+                                    child: Image.memory(value.currentImage!),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 5),
+                            Text(filter.filterName,
+                              style: const TextStyle(
+                                  color: Colors.white
+                              ),
+                            )
+                          ],
+                        ),
+                      );
+                    },
+                  );
+                }
+            )
         ),
       ),
     );
   }
-
-  Widget _BottomButton({
-    required FilterType filterType,
-    required FilterType? currentFilter,
-    required VoidCallback onPressed,
-  }) {
-    String filterName;
-    Uint8List filterImage;
-
-    // Determine the filter name and image based on the filter type
-    switch (filterType) {
-      case FilterType.Original:
-        filterName = "Original";
-        filterImage = appImageProvider.currentImage!;
-        break;
-      case FilterType.Vivid:
-        filterName = "Vivid";
-        filterImage = appImageProvider.currentImage!;
-        break;
-      case FilterType.Sepia:
-        filterName = "Sepia";
-        filterImage = appImageProvider.currentImage!;
-        break;
-      case FilterType.Noir:
-        filterName = "Noir";
-        filterImage = appImageProvider.currentImage!;
-        break;
-      case FilterType.Silvertone:
-        filterName = "Silvertone";
-        filterImage = appImageProvider.currentImage!;
-        break;
-      case FilterType.Mono:
-        filterName = "Mono";
-        filterImage = appImageProvider.currentImage!;
-        break;
-    }
-
-    // Determine if this button corresponds to the currently applied filter
-    bool isActive = filterType == currentFilter;
-
-    // Define the color for the active filter
-    Color activeColor = Colors.blue; // Change this color as needed
-
-    return InkWell(
-      onTap: onPressed,
-      child: Column(
-        children: [
-          Container(
-            width: 70,
-            height: 40,
-            decoration: BoxDecoration(
-              border: isActive ? Border.all(color: activeColor, width: 2) : null,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Image.memory(
-              filterImage,
-              fit: BoxFit.cover,
-            ),
-          ),
-          Text(filterName, style: TextStyle(color: isActive ? activeColor : Colors.white)),
-        ],
-      ),
-    );
-  }
-}
-
-enum FilterType {
-  Original,
-  Vivid,
-  Sepia,
-  Noir,
-  Silvertone,
-  Mono
-  // Add more filter types here
 }
