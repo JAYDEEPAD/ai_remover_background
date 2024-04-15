@@ -339,7 +339,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       Icons.filter_vintage_outlined,
                       'Filter',
                       onPressed: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => Filter_Screen()));
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => FilterScreen()));
                       }),
                   _BottomButton(
                       Icons.tune,
