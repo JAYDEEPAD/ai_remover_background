@@ -750,9 +750,11 @@
 
 import 'dart:convert';
 import 'dart:io';
+import 'package:ai_remover_background/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
 
 class NewApiScreen extends StatefulWidget {
   const NewApiScreen({Key? key}) : super(key: key);
@@ -768,21 +770,21 @@ class _NewApiScreenState extends State<NewApiScreen> {
   String? newimageUrl;
   String? errorMessage;
   bool isProcessing = false;
-  File? _currentImage;
+  String? _currentImage;
 
   Future<void> _uploadImage() async {
     setState(() {
       _isUploading = true;
     });
 
-    final picker = ImagePicker();
+    /*final picker = ImagePicker();
     final pickedImage = await picker.pickImage(source: ImageSource.gallery);
     if (pickedImage != null) {
       setState(() {
         _selectedImage = File(pickedImage.path);
       });
     }
-
+*/
     if (_selectedImage == null) {
       // Handle if no image was selected
       setState(() {
@@ -814,9 +816,9 @@ class _NewApiScreenState extends State<NewApiScreen> {
         String imagePath = jsonResponse['iamge_path'] ?? '';
         print(imagePath);
         setState(() {
-          _uploadedImageUrl = imagePath;
+          _currentImage = imagePath;
         });
-        print(_uploadedImageUrl);
+        print(_currentImage);
       } else {
         // Handle error if response status code is not 200
       }
@@ -826,6 +828,7 @@ class _NewApiScreenState extends State<NewApiScreen> {
       });
     }
   }
+
   Future<void> removeBackground() async {
     final apiUrl = 'https://bgremove.dohost.in/remove-bg';
     try {
@@ -836,7 +839,7 @@ class _NewApiScreenState extends State<NewApiScreen> {
           'Content-Type': 'application/json',
         },
         body: jsonEncode({
-          "image_url": _uploadedImageUrl,
+          "image_url": _currentImage,
         }),
       );
 
@@ -869,7 +872,21 @@ class _NewApiScreenState extends State<NewApiScreen> {
       appBar: AppBar(
         title: Text('Image Upload Example'),
       ),
-      body: Center(
+      body:Center(
+        child: Consumer<AppImageProvider>(
+            builder: (BuildContext context, value, Widget? child) {
+              if (value.currentImage != null) {
+                print('Current Image URL: ${value.currentImage}');
+                return  Image.memory(value.currentImage!);
+
+              }
+              print(value.currentImage);
+              return Center(
+              child: CircularProgressIndicator(),
+              );
+            }),
+      ),
+      /*Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
@@ -892,16 +909,16 @@ class _NewApiScreenState extends State<NewApiScreen> {
                 : Text('No Image Selected')),
             SizedBox(height: 20),
             // Button to upload the image
-            ElevatedButton(
+            *//*ElevatedButton(
               onPressed: _isUploading ? null : _uploadImage,
               child: _isUploading
                   ? CircularProgressIndicator()
                   : Text('Upload Image'),
-            ),
+            ),*//*
           ],
         ),
 
-      ),
+      ),*/
       bottomNavigationBar: SizedBox(
         height: 56,
         child: ElevatedButton(
@@ -917,6 +934,8 @@ class _NewApiScreenState extends State<NewApiScreen> {
     );
   }
 }
+
+
 
 class Const_value {
   String cdn_url_image_display = "https://cdn.dohost.in//upload//";
