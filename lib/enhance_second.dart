@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:typed_data';
+import 'package:ai_remover_background/premiumplan_screen.dart';
 import 'package:ai_remover_background/screen/Filters.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -220,38 +221,43 @@ class _EnhanceState extends State<Enhance> {
                       SizedBox(
                         width: 10,
                       ),
-                      Stack(children: [
-                        Material(
-                          elevation: 4,
-                          borderRadius: BorderRadius.circular(20),
-                          child: Container(
-                            height: 30,
-                            width: 50,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(20),
-                              color: Colors.deepPurple[200],
+                      GestureDetector(
+                        onTap: (){
+                          Navigator.push(context, MaterialPageRoute(builder: (context)=>PremiumPlanScreen()));
+                        },
+                        child: Stack(children: [
+                          Material(
+                            elevation: 4,
+                            borderRadius: BorderRadius.circular(20),
+                            child: Container(
+                              height: 30,
+                              width: 50,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(20),
+                                color: Colors.deepPurple[200],
+                              ),
                             ),
                           ),
-                        ),
-                        Positioned(
-                          top: 7,
-                          left: 4,
-                          child: Image(
-                            image: NetworkImage(
-                              'https://cdn-icons-png.flaticon.com/128/6423/6423882.png',
-                            ),
-                            height: 15,
-                            width: 15,
-                          ),
-                        ),
-                        Positioned(
+                          Positioned(
                             top: 7,
-                            right: 9,
-                            child: Text(
-                              "Pro",
-                              style: TextStyle(fontSize: 10),
-                            )),
-                      ]),
+                            left: 4,
+                            child: Image(
+                              image: NetworkImage(
+                                'https://cdn-icons-png.flaticon.com/128/6423/6423882.png',
+                              ),
+                              height: 15,
+                              width: 15,
+                            ),
+                          ),
+                          Positioned(
+                              top: 7,
+                              right: 9,
+                              child: Text(
+                                "Pro",
+                                style: TextStyle(fontSize: 10),
+                              )),
+                        ]),
+                      ),
                       SizedBox(
                         width: 22,
                       ),

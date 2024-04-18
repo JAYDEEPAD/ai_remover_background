@@ -1,5 +1,4 @@
 import 'dart:typed_data';
-
 import 'package:ai_remover_background/home_screen.dart';
 import 'package:ai_remover_background/provider.dart';
 import 'package:colorfilter_generator/addons.dart';
@@ -445,7 +444,6 @@ class _Adjustment_ScreenState extends State<Adjustment_Screen> {
     adj = ColorFilterGenerator(
         name: 'Adjust',
         filters: [
-
           ColorFilterAddons.brightness(b ?? brightness),
           ColorFilterAddons.contrast(c ?? contrast),
           ColorFilterAddons.saturation(s ?? saturation),
@@ -531,7 +529,7 @@ class _Adjustment_ScreenState extends State<Adjustment_Screen> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Visibility(
+                      /*Visibility(
                         visible: showauto,
                         child: slider(
                           value: auto,
@@ -542,7 +540,7 @@ class _Adjustment_ScreenState extends State<Adjustment_Screen> {
                             });
                           },
                         ),
-                      ),
+                      ),*/
                       Visibility(
                         visible: showbrightness,
                         child: slider(
@@ -703,6 +701,7 @@ class _Adjustment_ScreenState extends State<Adjustment_Screen> {
   }
 
   // Method to auto-adjust all filters
+  // Method to auto-adjust all filters
   void autoAdjust() async {
     // Get the current image data
     Uint8List imageData = await getCurrentImageData();
@@ -714,6 +713,13 @@ class _Adjustment_ScreenState extends State<Adjustment_Screen> {
     double autoHue = calculateAutoHue(imageData);
     double autoSepia = calculateAutoSepia(imageData);
 
+    // Assign static values for adjustments
+    double staticBrightness = 0.5; // Example static value for brightness
+    double staticContrast = 0.3; // Example static value for contrast
+    double staticSaturation = 0.2; // Example static value for saturation
+    double staticHue = 0.1; // Example static value for hue
+    double staticSepia = 0.4; // Example static value for sepia
+
     // Update the state with auto-adjusted values
     // Update the state with auto-adjusted values clamped within the valid range
     setState(() {
@@ -724,11 +730,11 @@ class _Adjustment_ScreenState extends State<Adjustment_Screen> {
       sepia = autoSepia.clamp(-0.9, 1.0);
       adjust(
         a: autoBrightness.clamp(-0.9, 1.0), // Adjusted for auto slider
-        b: autoBrightness,
-        c: autoContrast,
-        s: autoSaturation,
-        h: autoHue,
-        se: autoSepia,
+        b: staticBrightness,
+        c: staticContrast,
+        s: staticSaturation,
+        h: staticHue,
+        se: staticSepia,
       );
       // Update the visibility of sliders based on the selected filter
       switch (Selected) {
@@ -754,7 +760,6 @@ class _Adjustment_ScreenState extends State<Adjustment_Screen> {
           showSlider();
       }
     });
-
   }
 
   // Method to get the current image data
