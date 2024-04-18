@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
+
 import 'enhance_second.dart';
 
 class PremiumPlanScreen extends StatefulWidget {
@@ -9,7 +10,7 @@ class PremiumPlanScreen extends StatefulWidget {
 
 class _PremiumPlanScreenState extends State<PremiumPlanScreen> {
   var _razorpay = Razorpay();
-  String selectedPlan = "";  // Track theselected plan
+  String selectedPlan = ""; // Track the selected plan
 
   void initState() {
     super.initState();
@@ -49,28 +50,25 @@ class _PremiumPlanScreenState extends State<PremiumPlanScreen> {
     if (selectedPlan.isEmpty) {
       _showAlertDialog();
     } else {
-      // Proceed with the payment
+      double amount = 0.0; // Initialize amount variable
+      String description = ''; // Initialize description variable
       if (selectedPlan == "1 month") {
-        var options = {
-          'key': 'rzp_test_RsqV5b0NEAwbWT',
-          'amount': 1 * 100, //in the smallest currency sub-unit.
-          'name': 'Acme Corp.',
-          'order_id': 'order_EMBFqjDHEEn80l', // Generate order_id using Orders API
-          'description': 'Fine T-Shirt',
-          'timeout': 60, // in seconds
-        };
-        _razorpay.open(options);
+        amount = 853.27;
+        description = 'Filter Editing Pro - 1 month'; // Update description
       } else if (selectedPlan == "1 year") {
-        var options = {
-          'key': 'rzp_test_RsqV5b0NEAwbWT',
-          'amount': 12 * 100, //in the smallest currency sub-unit.
-          'name': 'Acme Corp.',
-          'order_id': 'order_EMBFqjDHEEn80l', // Generate order_id using Orders API
-          'description': 'Fine T-Shirt',
-          'timeout': 60, // in seconds
-        };
-        _razorpay.open(options);
+        amount = 6698.39;
+        description = 'Filter Editing Pro - 1 year'; // Update description
       }
+
+      var options = {
+        'key': 'rzp_test_RsqV5b0NEAwbWT',
+        'amount': amount * 100, // Convert amount to smallest currency sub-unit
+        'name': 'Acme Corp.',
+        'order_id': 'order_EMBFqjDHEEn80l', // Generate order_id using Orders API
+        'description': description, // Use the updated description
+        'timeout': 90, // in seconds
+      };
+      _razorpay.open(options);
     }
   }
 
@@ -80,7 +78,7 @@ class _PremiumPlanScreenState extends State<PremiumPlanScreen> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text("Alert"),
-          content: Text("Please select a Premium Plan option."),
+          content: Text("Please select a Premium Plan Options."),
           actions: <Widget>[
             TextButton(
               onPressed: () {
@@ -106,8 +104,8 @@ class _PremiumPlanScreenState extends State<PremiumPlanScreen> {
         ),
         centerTitle: true,
         title: Text(
-            "Premium Plan",
-            style: TextStyle(
+          "Premium Plan",
+          style: TextStyle(
             fontFamily: 'OpenSans',
             fontWeight: FontWeight.bold,
           ),
@@ -189,13 +187,13 @@ class _PremiumPlanScreenState extends State<PremiumPlanScreen> {
             ),
             SizedBox(height: 20,),
             GestureDetector(
-              onTap: () => _selectPlan("1 Month"),
+              onTap: () => _selectPlan("1 month"),
               child: Padding(
                 padding: const EdgeInsets.only(left: 25, right: 25),
                 child: Material(
                   elevation: 4,
                   borderRadius: BorderRadius.circular(25),
-                  color: selectedPlan == "1 Month" ? Colors.deepPurple[200] : Colors.white,
+                  color: selectedPlan == "1 month" ? Colors.deepPurple[200] : Colors.white,
                   child: Container(
                     height: MediaQuery.of(context).size.height * .11,
                     width: MediaQuery.of(context).size.width * .99,
@@ -218,7 +216,7 @@ class _PremiumPlanScreenState extends State<PremiumPlanScreen> {
                             ),
                             Spacer(),
                             Text(
-                              "Rs. 10.22/Month",
+                              "Rs. 853.27/Month",
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 16,
@@ -236,13 +234,13 @@ class _PremiumPlanScreenState extends State<PremiumPlanScreen> {
             ),
             SizedBox(height: 20,),
             GestureDetector(
-              onTap: () => _selectPlan("1 Year"),
+              onTap: () => _selectPlan("1 year"),
               child: Padding(
                 padding: const EdgeInsets.only(left: 25, right: 25),
                 child: Material(
                   elevation: 4,
                   borderRadius: BorderRadius.circular(25),
-                  color: selectedPlan == "1 Year" ? Colors.deepPurple[200] : Colors.white,
+                  color: selectedPlan == "1 year" ? Colors.deepPurple[200] : Colors.white,
                   child: Container(
                     height: MediaQuery.of(context).size.height * .11,
                     width: MediaQuery.of(context).size.width * .99,
@@ -256,20 +254,20 @@ class _PremiumPlanScreenState extends State<PremiumPlanScreen> {
                           children: [
                             SizedBox(width: 20,),
                             Text(
-                              "1 Year",
+                              "1 year",
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 16,
-                                color: selectedPlan == "1 Year" ? Colors.white : Colors.black,
+                                color: selectedPlan == "1 year" ? Colors.white : Colors.black,
                               ),
                             ),
                             Spacer(),
                             Text(
-                              "Rs. 80.22/Year ",
+                              "Rs. 6698.39/year ",
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 16,
-                                color: selectedPlan == "1 Year" ? Colors.white : Colors.black,
+                                color: selectedPlan == "1 year" ? Colors.white : Colors.black,
                               ),
                             ),
                             SizedBox(width: 20,),
@@ -303,7 +301,7 @@ class _PremiumPlanScreenState extends State<PremiumPlanScreen> {
                     ),
                     child: Center(
                       child: Text(
-                        "Continue",
+                        "continue",
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 19,
