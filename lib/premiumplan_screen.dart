@@ -62,13 +62,19 @@ class _PremiumPlanScreenState extends State<PremiumPlanScreen> {
 
       var options = {
         'key': 'rzp_test_RsqV5b0NEAwbWT',
-        'amount': amount * 100, // Convert amount to smallest currency sub-unit
-        'name': 'Acme Corp.',
-        'order_id': 'order_EMBFqjDHEEn80l', // Generate order_id using Orders API
-        'description': description, // Use the updated description
-        'timeout': 90, // in seconds
+        'amount': amount * 100,
+        'name': "abc",
+        'description': 'Pay For Grocery',
+        'prefill': {
+          'contact': "1234567890",
+          'email': "abc@gmail.com"
+        }
       };
-      _razorpay.open(options);
+      try {
+        _razorpay.open(options);
+      } catch (e) {
+        print(e);
+      }
     }
   }
 
@@ -98,7 +104,8 @@ class _PremiumPlanScreenState extends State<PremiumPlanScreen> {
       appBar: AppBar(
         leading: IconButton(
           onPressed: () {
-            Navigator.push(context, MaterialPageRoute(builder: (context) => Enhance()));
+            Navigator.push(
+                context, MaterialPageRoute(builder: (context) => Enhance()));
           },
           icon: Icon(Icons.close, color: Colors.black),
         ),
