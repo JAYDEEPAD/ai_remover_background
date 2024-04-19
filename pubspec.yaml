@@ -66,6 +66,7 @@ dependencies:
   lindi_sticker_widget:
   text_editor: ^0.7.0
   shimmer: ^3.0.0
+  syncfusion_flutter_core: ^25.1.41
   #image_editor_plus: ^1.0.5
 
 dev_dependencies:
