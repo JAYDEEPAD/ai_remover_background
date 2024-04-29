@@ -19,7 +19,6 @@ class _DownloadState extends State<Download> {
         centerTitle: true,
         title: Text('Download Page',style: TextStyle(
 
-
         ),),
       ),
       body:

@@ -155,6 +155,7 @@ class _EnhanceState extends State<Enhance> {
   @override
   Widget build(BuildContext context) {
     Uint8List? _image = context.watch<ImageProviderPicker>().image;
+    String profileName = context.watch<ProfileNameProvider>().profileName;
     return SafeArea(
       child: Scaffold(
         body: Container(
@@ -208,14 +209,13 @@ class _EnhanceState extends State<Enhance> {
                           SizedBox(
                             width: 7,
                           ),
-                          Text("Khushali Sarvaiya"),
+                          Text("$profileName"),
                         ],
                       ),
                     ],
                   ),
                   // SizedBox(width: 30,),
                   Spacer(),
-
                   Row(
                     children: [
                       //this is for notification

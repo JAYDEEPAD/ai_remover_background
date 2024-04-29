@@ -25,6 +25,16 @@ class ImageProviderPicker extends ChangeNotifier {
   }
 }
 
+class ProfileNameProvider extends ChangeNotifier {
+  String _profileName = '';
+  String get profileName => _profileName;
+
+  void setProfileName(String name) {
+    _profileName = name;
+    notifyListeners();
+  }
+}
+
 class ProfilePage extends StatefulWidget {
   @override
   _ProfilePageState createState() => _ProfilePageState();
@@ -46,6 +56,7 @@ class _ProfilePageState extends State<ProfilePage> {
   void initState() {
     super.initState();
     fetchDisplayName();
+    print(fetchDisplayName());
   }
 
   Future<void> fetchDisplayName() async {
@@ -61,6 +72,7 @@ class _ProfilePageState extends State<ProfilePage> {
       if (name != null) {
         setState(() {
           displayName = name;
+          print(displayName);
         });
       }
     }
@@ -93,14 +105,16 @@ class _ProfilePageState extends State<ProfilePage> {
       // Fetch the updated name from Firestore
       DocumentSnapshot<Map<String, dynamic>> snapshot =
       await FirebaseFirestore.instance.collection('login').doc(user.uid).get();
-
       String? updatedName = snapshot.data()?['name'];
-
+      print(updatedName);
       if (updatedName != null) {
         // Update the displayName variable with the updated name
         setState(() {
           displayName = updatedName;
+          print(displayName);
+
         });
+        Provider.of<ProfileNameProvider>(context, listen: false).setProfileName(updatedName);
       }
     }
   }
@@ -435,7 +449,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               //   size: 35,
                               //   color: Colors.grey,
                               // ),
-                              Image.asset('assets/images/img_20.png',
+                              Image.asset('assets/image/img_20.png',
                                 height: 44, width: 44,),
 
                               SizedBox(height: 6,),
@@ -467,7 +481,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               //   color: Colors.grey,
                               // ),
                               Container(child: Image.asset(
-                                'assets/images/img_21.png', height: 45,
+                                'assets/image/img_21.png', height: 45,
                                 width: 45,)),
                               SizedBox(height: 10,),
                               Text(
@@ -549,6 +563,7 @@ class ProfileScreen extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Profile',
       home: ProfilePage(),
+
     );
   }
 }
