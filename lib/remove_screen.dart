@@ -1,143 +1,46 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
+import 'dart:ui';
+import 'package:ai_remover_background/home_screen.dart';
 import 'package:ai_remover_background/provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
+import 'package:screenshot/screenshot.dart';
 
-class NewApiScreen extends StatefulWidget {
-  const NewApiScreen({Key? key}) : super(key: key);
+
+class NewApiScreen1 extends StatefulWidget {
+  const NewApiScreen1({Key? key}) : super(key: key);
 
   @override
-  State<NewApiScreen> createState() => _NewApiScreenState();
+  State<NewApiScreen1> createState() => _NewApiScreenState();
 }
 
-class _NewApiScreenState extends State<NewApiScreen> {
-  bool _isUploading = false;
-  File? _selectedImage;
-  String? _currentImage;
-  String? _base64Image;
+class _NewApiScreenState extends State<NewApiScreen1> {
   String? newimageUrl;
   String? errorMessage;
   bool isProcessing = false;
-  String? _uploadedImageUrl;
-  //String base64String = '';
-  String? downloadUrl;
-
   late AppImageProvider appImageProvider;
-
+  ScreenshotController screenshotController = ScreenshotController();
   @override
   void initState() {
     super.initState();
     appImageProvider = Provider.of<AppImageProvider>(context, listen: false);
   }
-
-  Future<void> _uploadImage() async {
-    setState(() {
-      _isUploading = true;
-    });
-
-    // Access _currentImage directly from the provider
-    Uint8List? currentImage = Provider
-        .of<AppImageProvider>(context, listen: false)
-        .currentImage;
-
-    if (currentImage == null) {
-      // Handle if no image is available
-      setState(() {
-        _isUploading = false;
-      });
-      return;
-    }
-
-    String url = Const_value().cdn_url_upload;
-    print(url);
-
-    var request = http.MultipartRequest('POST', Uri.parse(url));
-    print(request);
-    request.files.add(
-      http.MultipartFile.fromBytes('b_video', currentImage,
-          filename: 'image.jpg'), // Provide a filename for the uploaded image
-    );
-
-    try {
-      var response = await request.send();
-      print(response);
-      if (response.statusCode == 200) {
-        var responseData = await response.stream.toBytes();
-        print(responseData);
-        var responseString = utf8.decode(responseData);
-        var jsonResponse = json.decode(responseString);
-        print(jsonResponse);
-        String imagePath = jsonResponse['image_path'] ?? '';
-        print(imagePath);
-        setState(() {
-         _uploadedImageUrl = imagePath;
-        });
-        print(_uploadedImageUrl);
-        // Call removeBackground() with the uploaded image data
-        await removeBackground();
-      } else {
-        // Handle error if response status code is not 200
-      }
-    } finally {
-      setState(() {
-        _isUploading = false;
-      });
-    }
-  }
-
-  // Future<void> removeBackground(Uint8List imageData) async {
-  //   final apiUrl = 'https://bgremove.dohost.in/remove-bg';
-  //   try {
-  //     // Sending a POST request to the API with image bytes
-  //     final response = await http.post(
-  //       Uri.parse(apiUrl),
-  //       headers: {
-  //         'Content-Type': 'application/json',
-  //       },
-  //       body: jsonEncode({
-  //         "image_bytes": base64Encode(imageData), // Convert image bytes to base64
-  //       }),
-  //     );
-  //
-  //     print(response.body);
-  //     if (response.statusCode == 200) {
-  //       final responseData = jsonDecode(response.body);
-  //       final imageData = responseData['image_url'];
-  //       print(imageData);
-  //       setState(() {
-  //         newimageUrl = imageData;
-  //       });
-  //     } else {
-  //       setState(() {
-  //         errorMessage = 'Failed to remove background: ${response.statusCode}';
-  //       });
-  //     }
-  //   } catch (e) {
-  //     setState(() {
-  //       errorMessage = 'Failed to remove background: $e';
-  //     });
-  //   } finally {
-  //     setState(() {
-  //       isProcessing = false;
-  //     });
-  //   }
-  // }
-  Future<void> removeBackground() async {
+  Future<void> removeBackground(String downloadUrl) async {
     final apiUrl = 'https://bgremove.dohost.in/remove-bg';
     try {
-      // Sending a POST request to the API with image URL
+      // Sending a POST request to the API with Firebase Storage download URL
       final response = await http.post(
         Uri.parse(apiUrl),
         headers: {
           'Content-Type': 'application/json',
         },
         body: jsonEncode({
-          "image_url": _uploadedImageUrl, // Use the uploaded image URL directly
+          "image_url": downloadUrl, // Use the Firebase Storage download URL
         }),
       );
       print(response.body);
@@ -166,79 +69,133 @@ class _NewApiScreenState extends State<NewApiScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Color(0xff212121),
       appBar: AppBar(
-        title: Text('Image Remove Example'),
-      ),
-      body: Center(
-        child: Consumer<AppImageProvider>(
-          builder: (BuildContext context, value, Widget? child) {
-            if (newimageUrl != null) {
-              // Display the background-removed image if available
-              return SingleChildScrollView(
-                child: Column(
-                  children: [
-                    Image.network(
-                      newimageUrl!,
-                      // Assuming newimageUrl contains the URL of the background-removed image
-                      fit: BoxFit.cover,
-                    ),
-                  ],
-                ),
-              );
-            } else if (value.currentImage != null) {
-              // Display the original image if background-removed image is not available yet
-              return SingleChildScrollView(
-                child: Column(
-                  children: [
-                    Image.memory(
-                      value.currentImage!,
-                      // Assuming currentImage is already Uint8List
-                      fit: BoxFit.cover,
-                    ),
-                  ],
-                ),
-              );
-            }
-            // Display a loading indicator if no image is available yet
-            return Center(
-              child: CircularProgressIndicator(),
-            );
-          },
+        backgroundColor: Colors.black,
+        title: Text(
+          "Background Remove Screen",
+          style: TextStyle(color: Colors.white,fontSize: 18),
         ),
-      ),
-      bottomNavigationBar: Consumer<AppImageProvider>(
-        builder: (BuildContext context, value, Widget? child) {
-          return SizedBox(
-            height: 56,
-            child: ElevatedButton(
+        centerTitle: true,
+        leading: IconButton(
+            onPressed: () {
+              Navigator.push(
+                  context, MaterialPageRoute(builder: (context) => HomeScreen()));
+            },
+            icon: Icon(Icons.close, color: Colors.white)),
+        actions: [
+          IconButton(
               onPressed: () async {
-                // Convert the image data to a base64 string
-                String imageDataString = base64Encode(value.currentImage!);
-                print(imageDataString);
-
-                // Upload the image to Firebase Storage
-                String? downloadUrl = await uploadBase64ImageToFirebase(imageDataString);
-                print(downloadUrl);
-                // Display a message based on the upload result
-                if (downloadUrl != null) {
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                    content: Text('Image uploaded successfully to Firebase Storage'),
-                  ));
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                    content: Text('Error uploading image to Firebase Storage'),
-                  ));
-                }
+                Uint8List? byte = await screenshotController.capture();
+                appImageProvider.changeImage(byte!);
+                if (!mounted) return;
+                Navigator.of(context).pop();
               },
-              child: Text('Remove Background'),
+              icon: Icon(Icons.check, color: Colors.white)),
+        ],
+      ),
+      body:
+      Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Screenshot(
+            controller: screenshotController,
+            child: Consumer<AppImageProvider>(
+              builder: (BuildContext context, value, Widget? child) {
+                if (newimageUrl != null) {
+                  // Display the background-removed image if available
+                  return Column(
+                    children: [
+                      Image.network(
+                        newimageUrl!,
+                        // Assuming newimageUrl contains the URL of the background-removed image
+                        fit: BoxFit.cover,
+                      ),
+                    ],
+                  );
+                } else if (value.currentImage != null) {
+                  // Display the original image if background-removed image is not available yet
+                  return Column(
+                    children: [
+                      Image.memory(
+                        value.currentImage!,
+                        // Assuming currentImage is already Uint8List
+                        fit: BoxFit.cover,
+                      ),
+                    ],
+                  );
+                }
+                // Display a loading indicator if no image is available yet
+                return Center(
+                  child: CircularProgressIndicator(),
+                );
+              },
             ),
-          );
-        },
+          ),
+        ],
+      ),
+
+      bottomNavigationBar:
+
+      Container(
+        height: 80,
+        width: double.infinity,
+        color: Colors.black,
+        child: SafeArea(
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: [
+                SizedBox(width: 100,),
+                Consumer<AppImageProvider>(
+                    builder: (BuildContext context, value, Widget? child) {
+                      return SizedBox(
+                        height: 40,
+                        child:
+                        ElevatedButton(
+                          onPressed: () async {
+                            // Convert the image data to a base64 string
+                            String imageDataString = base64Encode(value.currentImage!);
+                            print(imageDataString);
+                            try {
+                              // Upload the image to Firebase Storage
+                              String? downloadUrl = await uploadBase64ImageToFirebase(imageDataString);
+                              if (downloadUrl != null) {
+                                // Display a message indicating successful upload
+                                // ScaffoldMessenger.of(context).showSnackBar(
+                                //   SnackBar(content: Text('Image uploaded successfully to Firebase Storage')),
+                                // );
+                                // Remove background using the Firebase Storage download URL
+                                await removeBackground(downloadUrl);
+                              } else {
+                                // Display a message indicating upload failure
+                                // ScaffoldMessenger.of(context).showSnackBar(
+                                //   SnackBar(content: Text('Error uploading image to Firebase Storage')),
+                                // );
+                              }
+                            } catch (e) {
+                              // Handle any errors
+                              print("Error: $e");
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text('Error: $e')),
+                              );
+                            }
+                          },
+                          child: Text('Remove Background'),
+                        ),
+
+                      );
+                    }
+                ),
+
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
-
-
 
   Future<String?> uploadBase64ImageToFirebase(String base64String) async {
     try {
@@ -273,7 +230,6 @@ class Const_value {
   String cdn_url_image_display = "https://cdn.dohost.in//upload//";
   String cdn_url_upload = "https://cdn.dohost.in/image_upload.php/";
 }
-
 
 
 

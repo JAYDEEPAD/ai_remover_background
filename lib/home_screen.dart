@@ -482,11 +482,10 @@
 // }
 import 'dart:typed_data';
 import 'package:ai_remover_background/crop_image.dart';
-import 'package:ai_remover_background/enhance_second.dart';
 import 'package:ai_remover_background/filtter.dart';
+import 'package:ai_remover_background/newapi_screen.dart';
 import 'package:ai_remover_background/premiumplan_screen.dart';
 import 'package:ai_remover_background/provider.dart';
-import 'package:ai_remover_background/remove_screen.dart';
 import 'package:ai_remover_background/sticker.dart';
 import 'package:ai_remover_background/text_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -500,8 +499,7 @@ import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import '../login.dart';
 import '../screen/enhance.dart';
 import 'adjustment_screen.dart';
-
-
+import 'enhance_second.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -516,13 +514,17 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     _checkAuthState();
     // checkUserStatus();
-    originalImage = Provider.of<AppImageProvider>(context, listen: false).currentImage!;
+    originalImage =
+    Provider.of<AppImageProvider>(context, listen: false).currentImage!;
   }
+
   void _revertImage() {
-    final appImageProvider = Provider.of<AppImageProvider>(context, listen: false);
+    final appImageProvider =
+    Provider.of<AppImageProvider>(context, listen: false);
     // Revert the image to its original state
     appImageProvider.updateImage(originalImage);
   }
+
   void _checkAuthState() {
     FirebaseAuth.instance.authStateChanges().listen((User? user) {
       if (user != null) {
@@ -567,7 +569,6 @@ class _HomeScreenState extends State<HomeScreen> {
   //     );
   //   }
   // }
-
 
   // void _showSaveOptions(BuildContext context) {
   //   final RenderBox button = context.findRenderObject() as RenderBox;
@@ -614,8 +615,13 @@ class _HomeScreenState extends State<HomeScreen> {
     if (user == null) {
       return false;
     }
-    DocumentSnapshot<Map<String, dynamic>> snapshot = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
-    return snapshot.exists && snapshot.data()?['premium_plan_purchased'] == true;
+    DocumentSnapshot<Map<String, dynamic>> snapshot = await FirebaseFirestore
+        .instance
+        .collection('users')
+        .doc(user.uid)
+        .get();
+    return snapshot.exists &&
+        snapshot.data()?['premium_plan_purchased'] == true;
   }
 
   Future<void> markPremiumPlanAsPurchased() async {
@@ -628,11 +634,14 @@ class _HomeScreenState extends State<HomeScreen> {
       'premium_plan_purchased': true,
     }, SetOptions(merge: true));
   }
+
   void _showSaveOptions(BuildContext context) {
     final RenderBox button = context.findRenderObject() as RenderBox;
-    final RenderBox overlay = Overlay.of(context)!.context.findRenderObject() as RenderBox;
+    final RenderBox overlay =
+    Overlay.of(context)!.context.findRenderObject() as RenderBox;
 
-    final Offset buttonTopRight = button.localToGlobal(button.size.topRight(Offset.zero), ancestor: overlay);
+    final Offset buttonTopRight = button
+        .localToGlobal(button.size.topRight(Offset.zero), ancestor: overlay);
 
     final RelativeRect position = RelativeRect.fromLTRB(
       buttonTopRight.dx,
@@ -684,7 +693,11 @@ class _HomeScreenState extends State<HomeScreen> {
               _saveImageToGalleryhd(context);
             } else {
               // Premium plan not purchased
-              Navigator.push(context, MaterialPageRoute(builder: (context) => PremiumPlanScreen())).then((value) async {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => PremiumPlanScreen()))
+                  .then((value) async {
                 // Handle result from PremiumPlanScreen
                 if (value == true) {
                   // Premium plan purchased, proceed with HD save
@@ -707,32 +720,33 @@ class _HomeScreenState extends State<HomeScreen> {
       ],
     );
   }
+
   void _saveImageToGallery(BuildContext context) async {
-    final appImageProvider = Provider.of<AppImageProvider>(context, listen: false);
+    final appImageProvider =
+    Provider.of<AppImageProvider>(context, listen: false);
     if (appImageProvider.currentImage != null) {
       try {
         setState(() {
           _isSaving = true; // Set _isSaving to true before saving
         });
-
         // Upload the image to cloud storage (Firebase Storage)
-        final firebase_storage.Reference storageRef =
-        firebase_storage.FirebaseStorage.instance.ref().child('images/${DateTime.now().millisecondsSinceEpoch}.png');
+        final firebase_storage.Reference storageRef = firebase_storage
+            .FirebaseStorage.instance
+            .ref()
+            .child('images/${DateTime.now().millisecondsSinceEpoch}.png');
         final firebase_storage.UploadTask uploadTask = storageRef.putData(
           Uint8List.fromList(appImageProvider.currentImage!),
           firebase_storage.SettableMetadata(contentType: 'image/png'),
         );
         await uploadTask;
-
         // Get download URL of the uploaded image
         final String downloadURL = await storageRef.getDownloadURL();
         print(downloadURL);
-
         // Save the image to the device's gallery
-        final result = await ImageGallerySaver.saveImage(Uint8List.fromList(appImageProvider.currentImage!),
+        final result = await ImageGallerySaver.saveImage(
+          Uint8List.fromList(appImageProvider.currentImage!),
           name: 'my_image.png',
           quality: 60,
-
         );
         print(result);
 
@@ -743,7 +757,10 @@ class _HomeScreenState extends State<HomeScreen> {
         }
         final DateTime uploadTime = DateTime.now();
         final userId = user.uid;
-        final userRef = FirebaseFirestore.instance.collection('users').doc(userId).collection('images');
+        final userRef = FirebaseFirestore.instance
+            .collection('users')
+            .doc(userId)
+            .collection('images');
         await userRef.add({
           'imageUrl': downloadURL,
           'uploadTime': uploadTime.toIso8601String(),
@@ -775,8 +792,10 @@ class _HomeScreenState extends State<HomeScreen> {
       );
     }
   }
+
   void _saveImageToGalleryhd(BuildContext context) async {
-    final appImageProvider = Provider.of<AppImageProvider>(context, listen: false);
+    final appImageProvider =
+    Provider.of<AppImageProvider>(context, listen: false);
     if (appImageProvider.currentImage != null) {
       try {
         setState(() {
@@ -784,8 +803,10 @@ class _HomeScreenState extends State<HomeScreen> {
         });
 
         // Upload the image to cloud storage (Firebase Storage)
-        final firebase_storage.Reference storageRef =
-        firebase_storage.FirebaseStorage.instance.ref().child('images/${DateTime.now().millisecondsSinceEpoch}.png');
+        final firebase_storage.Reference storageRef = firebase_storage
+            .FirebaseStorage.instance
+            .ref()
+            .child('images/${DateTime.now().millisecondsSinceEpoch}.png');
         final firebase_storage.UploadTask uploadTask = storageRef.putData(
           Uint8List.fromList(appImageProvider.currentImage!),
           firebase_storage.SettableMetadata(contentType: 'image/png'),
@@ -797,8 +818,11 @@ class _HomeScreenState extends State<HomeScreen> {
         print(downloadURL);
 
         // Save the image to the device's gallery
-        final result = await ImageGallerySaver.saveImage(Uint8List.fromList(appImageProvider.currentImage!),
-          name: 'my_image.png',quality: 100,);
+        final result = await ImageGallerySaver.saveImage(
+          Uint8List.fromList(appImageProvider.currentImage!),
+          name: 'my_image.png',
+          quality: 100,
+        );
         print(result);
 
         // Save the download URL to Firestore
@@ -808,12 +832,14 @@ class _HomeScreenState extends State<HomeScreen> {
         }
         final DateTime uploadTime = DateTime.now();
         final userId = user.uid;
-        final userRef = FirebaseFirestore.instance.collection('users').doc(userId).collection('images');
+        final userRef = FirebaseFirestore.instance
+            .collection('users')
+            .doc(userId)
+            .collection('images');
         await userRef.add({
           'imageUrl': downloadURL,
           'uploadTime': uploadTime.toIso8601String(),
         });
-
         // Show a snackbar to indicate success
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text('Image saved Gallery'),
@@ -840,15 +866,17 @@ class _HomeScreenState extends State<HomeScreen> {
       );
     }
   }
+
   @override
   Widget build(BuildContext context) {
-    var h = MediaQuery.of(context).size.height;
-    var w = MediaQuery.of(context).size.width;
-    print('$h,height');
-    print(w);
+    // var h = MediaQuery.of(context).size.height;
+    // var w = MediaQuery.of(context).size.width;
+    // print('$h,height');
+    // print(w);
     return WillPopScope(
       onWillPop: () async {
-        Navigator.push(context, MaterialPageRoute(builder: (context) => Enhance()));
+        Navigator.push(
+            context, MaterialPageRoute(builder: (context) => Enhance()));
         return false;
       },
       child: Scaffold(
@@ -861,21 +889,30 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           leading: IconButton(
             onPressed: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => Enhance()));
+              Navigator.push(
+                  context, MaterialPageRoute(builder: (context) => Enhance()));
             },
             icon: Icon(Icons.close, color: Colors.white),
           ),
           actions: [
-            TextButton(onPressed: (){
-              _showSaveOptions(context);
-            }, child: Text("Save",style: TextStyle(fontWeight: FontWeight.bold,fontSize: 16),)),
-
+            TextButton(
+                onPressed: () {
+                  _showSaveOptions(context);
+                },
+                child: Text(
+                  "Save",
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                )),
             IconButton(
               onPressed: _revertImage,
               icon: Icon(Icons.undo, color: Colors.white),
             ),
           ],
-          bottom: _isSaving ? PreferredSize(child: LinearProgressIndicator(), preferredSize: Size.fromHeight(4)) : null,
+          bottom: _isSaving
+              ? PreferredSize(
+              child: LinearProgressIndicator(),
+              preferredSize: Size.fromHeight(4))
+              : null,
         ),
         body: Stack(
           children: [
@@ -905,48 +942,53 @@ class _HomeScreenState extends State<HomeScreen> {
               scrollDirection: Axis.horizontal,
               child: Column(
                 children: [
-                  SizedBox(height: 20,),
+                  SizedBox(
+                    height: 20,
+                  ),
                   Row(
                     children: [
                       SizedBox(
                         width: 20,
                       ),
-                      _BottomButton(
-                          Icons.crop,
-                          'Crop',
+                      _BottomButton(Icons.crop, 'Crop', onPressed: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => CropScreen()));
+                      }),
+                      _BottomButton(Icons.filter_vintage_outlined, 'Filter',
                           onPressed: () {
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => CropScreen()));
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => FilterScreen()));
                           }),
-                      _BottomButton(
-                          Icons.filter_vintage_outlined,
-                          'Filter',
+                      _BottomButton(Icons.tune, 'Adjust', onPressed: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => Adjustment_Screen()));
+                      }),
+                      _BottomButton(Icons.text_fields_sharp, 'Text',
                           onPressed: () {
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => FilterScreen()));
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => Text_Screen()));
                           }),
-                      _BottomButton(
-                          Icons.tune,
-                          'Adjust',
+                      _BottomButton(Icons.emoji_emotions, 'Stickers',
                           onPressed: () {
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => Adjustment_Screen()));
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => StickerScreen()));
                           }),
-                      _BottomButton(
-                          Icons.text_fields_sharp,
-                          'Text',
-                          onPressed: () {
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => Text_Screen()));
-                          }),
-                      _BottomButton(
-                          Icons.emoji_emotions,
-                          'Stickers',
-                          onPressed: () {
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => StickerScreen()));
-                          }),
-                      _BottomButton(
-                          Icons.remove,
-                          'Back',
-                          onPressed: () {
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => NewApiScreen()));
-                          }),
+                      _BottomButton(Icons.remove, 'Back', onPressed: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => NewApiScreen1()));
+                      }),
                     ],
                   ),
                 ],
@@ -957,6 +999,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
+
   Widget _BottomButton(IconData icon, String title, {required onPressed}) {
     return InkWell(
       onTap: onPressed,
