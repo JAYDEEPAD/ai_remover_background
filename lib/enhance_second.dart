@@ -28,7 +28,8 @@ class Enhance extends StatefulWidget {
 class _EnhanceState extends State<Enhance> {
   List<dynamic> storageImages = [];
   late AppImageProvider appImageProvider;
-  String? userName;
+  String userName='';
+  bool isNewUser = true;
   String _selectedDuration = "";
   bool _planPurchased = true;
   String _purchasedPlanName = "";
@@ -36,16 +37,20 @@ class _EnhanceState extends State<Enhance> {
   double _purchasedPrice = 0;
   int valueKG = 0;
   int valueCM = 0;
+
+
   Future<void> fetchUserName() async {
-    final user = FirebaseAuth.instance.currentUser;
+    User? user = FirebaseAuth.instance.currentUser;
     if (user != null) {
-      await user
-          .reload(); // Reload the user to get the latest data including the display name
+      DocumentSnapshot<Map<String, dynamic>> snapshot = await FirebaseFirestore.instance.collection('login').doc(user.uid).get();
       setState(() {
-        userName = user.displayName;
+        userName = snapshot['name'] ?? 'Khushali Sarvaiya';
+        print(userName);// Assuming 'name' is the field containing the user's name in the 'login' collection
       });
     }
   }
+
+
   File? _image;
   Future getImage() async {
     final pickedFile =
@@ -66,6 +71,17 @@ class _EnhanceState extends State<Enhance> {
       storageImages = querySnapshot.docs.map((doc) => doc.data()).toList();
     });
   }
+
+  // Check if the current user exists in Firestore
+  Future<bool> isUserInFirestore() async {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      DocumentSnapshot<Map<String, dynamic>> snapshot = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
+      return snapshot.exists;
+    }
+    return false;
+  }
+
   Future<String> getImageUrl(String imagePath) async {
     // Get download URL from Firebase Storage
     String downloadURL =
@@ -210,14 +226,23 @@ class _EnhanceState extends State<Enhance> {
                         style: TextStyle(
                             fontWeight: FontWeight.bold, fontSize: 16),
                       ),
-                      Row(
+                      /*Row(
                         children: [
                           SizedBox(
                             width: 7,
                           ),
                           Text("$profileName"),
                         ],
-                      ),
+                      ),*/
+                      Row(
+                        children:[
+                          SizedBox(width:7),
+                          Text(profileName.isNotEmpty?profileName:'$userName',
+                          style: TextStyle(color: Colors.black, fontWeight: FontWeight.w600),
+                          )
+                        ]
+                      )
+
                     ],
                   ),
                   // SizedBox(width: 30,),
@@ -249,28 +274,25 @@ class _EnhanceState extends State<Enhance> {
                         width: 10,
                       ),
                       GestureDetector(
-                        onTap: () {
-                          if (_selectedDuration.isNotEmpty || _planPurchased) {
-                            // Navigate to Plan_Details screen if a plan is selected or purchased
+                        onTap: () async {
+                          bool userExistsInFirestore = await isUserInFirestore();
+                          if (userExistsInFirestore) {
+                            // Navigate to Plan_Details screen if the user exists in Firestore
                             Navigator.push(
                               context,
-                              MaterialPageRoute(
-                                builder: (context) => Plan_Details(
-                                  arguments: PlanDetailsArguments(
-                                    planName: _selectedDuration.isNotEmpty ? "Photo Me Pro" : _purchasedPlanName,
-                                    duration: _selectedDuration.isNotEmpty ? _selectedDuration : _purchasedDuration,
-                                    price: _selectedDuration.isNotEmpty ? (_selectedDuration == "1 month" ? 10 : 100) : _purchasedPrice,
-                                  ),
+                              MaterialPageRoute(builder: (context) => Plan_Details(
+                                arguments: PlanDetailsArguments(
+                                  planName: "Photo Me Pro",
+                                  duration: "1 month",
+                                  price: 10,
                                 ),
-                              ),
+                              )),
                             );
                           } else {
-                            // Navigate to PremiumPlanScreen if no plan is selected or purchased
+                            // Navigate to Premium Plan Screen for new users
                             Navigator.push(
                               context,
-                              MaterialPageRoute(
-                                builder: (context) => PremiumPlanScreen(),
-                              ),
+                              MaterialPageRoute(builder: (context) => PremiumPlanScreen()),
                             );
                           }
                         },

@@ -69,11 +69,11 @@
 //     required this.price,
 //   });
 // }
+
 import 'package:ai_remover_background/premiumplan_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-
 
 class Plan_Details extends StatefulWidget {
   final PlanDetailsArguments arguments;
@@ -84,22 +84,65 @@ class Plan_Details extends StatefulWidget {
 }
 
 class _Plan_DetailsState extends State<Plan_Details> {
-  bool _userHasPurchasedPlan = true;
+  bool _userHasPurchasedPlan = false;
+
   @override
   void initState() {
     super.initState();
     _checkUserPlanPurchase();
   }
+
   Future<void> _checkUserPlanPurchase() async {
     User? user = FirebaseAuth.instance.currentUser;
     if (user != null) {
-      DocumentSnapshot<Map<String, dynamic>> snapshot = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
-      bool hasPurchasedPlan = snapshot.exists && snapshot.data()?['premium_plan_purchased'] == true;
+      DocumentSnapshot<Map<String, dynamic>> snapshot =
+      await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
+      bool hasPurchasedPlan =
+          snapshot.exists && snapshot.data()?['premium'] == true;
       setState(() {
         _userHasPurchasedPlan = hasPurchasedPlan;
       });
     }
   }
+
+  Future<void> _upgradePlan(BuildContext context, String planDuration) async {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      // Get the price of the plan (assuming it's stored in widget.arguments.price)
+      double price = widget.arguments.price;
+
+      // Calculate the plan duration in months or years based on user selection
+      int months = 0;
+      if (planDuration == '1 month') {
+        months = 1;
+      } else if (planDuration == '1 year') {
+        months = 12;
+      }
+
+      // Calculate the plan end date
+      DateTime planEndDate = DateTime.now().add(Duration(days: 30 * months));
+
+      // Update user's premium plan purchase status along with price and plan duration
+      await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
+        'premium': true,
+        'plan_duration': planDuration, // Store plan duration
+        'plan_price': price, // Store plan price
+        'plan_end_date': planEndDate, // Store plan end date
+      });
+      setState(() {
+        _userHasPurchasedPlan = true;
+      });
+
+      // Navigate to the upgrade screen
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => PremiumPlanScreen()),
+      );
+    }
+  }
+
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -107,13 +150,23 @@ class _Plan_DetailsState extends State<Plan_Details> {
         backgroundColor: Colors.deepPurple[200],
         centerTitle: true,
         title: Text("Plan Details"),
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          icon: Icon(Icons.close, color: Colors.black),
+        ),
       ),
       body: Column(
         children: [
           SizedBox(
             height: 30,
           ),
-          Image.asset('assets/image/img_24.png',width: double.infinity,height: 200,),
+          Image.asset(
+            'assets/image/img_24.png',
+            width: double.infinity,
+            height: 200,
+          ),
           Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.center,
@@ -135,34 +188,39 @@ class _Plan_DetailsState extends State<Plan_Details> {
           SizedBox(
             height: 20,
           ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              SizedBox(width: 20,),
-              Container(
-                height: 45,
-                width: 200,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: ElevatedButton(
-                  onPressed: (){
-                    Navigator.push(context, MaterialPageRoute(builder: (context)=>PremiumPlanScreen()));
-                  },
-                  style: ButtonStyle(
-                    backgroundColor: MaterialStatePropertyAll(Colors.deepPurple[200]),
+          if(_userHasPurchasedPlan)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                SizedBox(width: 20,),
+                Container(
+                  height: 45,
+                  width: 200,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(6),
                   ),
-                  child: Text("Upgrade the plan",style: TextStyle(color: Colors.white,fontSize: 14,fontWeight: FontWeight.bold),),
-                ),
+                  child: ElevatedButton(
+                    onPressed: (){
+                      _upgradePlan(context, widget.arguments.duration);
+                    },
+                        style:ButtonStyle(
+                          backgroundColor: MaterialStatePropertyAll(Colors.deepPurple[200]),
+                        ),
+                        child: Text("Upgrade Plan",style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold),
+                        ),),),
+            
+                ],
               ),
-            ],
-          ),
         ],
       ),
     );
   }
 }
+
 class PlanDetailsArguments {
   final String planName;
   final String duration;
